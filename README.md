@@ -1,4 +1,4 @@
-# SC64 Library Menu
+# SC64 A3D Library Menu
 
 A 3DOS-style menu for the **SummerCart64**, designed for the **Analogue 3D**.
 
@@ -6,7 +6,7 @@ The menu replaces the stock SummerCart64 file list with a 3DOS-style screen. You
 
 It is built on [N64FlashcartMenu](https://github.com/Polprzewodnikowy/N64FlashcartMenu) v0.3.5 and keeps all of its features: per-game settings, cheats, 64DD, Controller Pak tools, saves and fast reboot.
 
-> Unofficial fan project. It is not affiliated with or endorsed by Analogue, Nintendo or the SummerCart64 / N64FlashcartMenu developers.
+> Unofficial fan project built with CLAUDE. It is not affiliated with or endorsed by Analogue, Nintendo or the SummerCart64 / N64FlashcartMenu developers.
 
 ---
 
