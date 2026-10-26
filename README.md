@@ -279,6 +279,7 @@ hide = cpak_saves
 - Text uses basic Latin characters only. Accented and Japanese characters show as spaces.
 - Only what is in `labels.db` can be shown. There is no automatic download, and labels can't be searched by name.
 - There is a missing feature when setting a primary disk for 64DD games as carts now boot with one click. If you press C-Right to enter configure and then back out with B this will set the cart as a primary disk - this will be one of the first fixes and is in the roadmap to repair.
+- Setting directories as default needs a fix and associated settings
 
 ---
 
