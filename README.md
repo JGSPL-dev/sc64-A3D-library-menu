@@ -2,6 +2,8 @@
 
 A 3DOS-style menu for the **SummerCart64**, designed for the **Analogue 3D**.
 
+![Library screen on an Analogue 3D](examples/03-library-games.png)
+
 The menu replaces the stock SummerCart64 file list with a 3DOS-style screen. Your SD card's folders become a row of cartridges, and each game shows its own label art. Live game info sits under the cart, and the familiar Library, History, Favorites and Settings tabs run along the top. When you boot the SummerCart64 on an Analogue 3D, it feels like the console's own menu instead of a separate flashcart menu.
 
 It is built on [N64FlashcartMenu](https://github.com/Polprzewodnikowy/N64FlashcartMenu) v0.3.5 and keeps all of its features: per-game settings, cheats, 64DD, Controller Pak tools, saves and fast reboot.
