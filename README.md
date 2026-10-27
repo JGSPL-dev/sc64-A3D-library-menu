@@ -16,6 +16,7 @@ It is built on [N64FlashcartMenu](https://github.com/Polprzewodnikowy/N64Flashca
 
 | Folder | Contents |
 |---|---|
+| `CHANGES-1.4.md` | What's new in 1.4 |
 | `install/` | `sc64menu.n64` and `menu/library.ini`: everything that goes on the SD card |
 | `source/` | Complete source (patch and git bundle) and how to use it |
 | `licences/` | AGPL-3.0 (menu), and OFL 1.1 for the Analogue OS and VT323 fonts |
@@ -24,7 +25,7 @@ It is built on [N64FlashcartMenu](https://github.com/Polprzewodnikowy/N64Flashca
 
 ## Screenshots
 
-The `examples/` folder has screenshots taken on an Analogue 3D, rescaled to 16:9 as they appear on the TV:
+The `examples/` folder has screenshots taken on an Analogue 3D (with version 1.3, before the 1.4 label window and 64DD changes), rescaled to 16:9 as they appear on the TV:
 
 | File | Screen |
 |---|---|
@@ -109,8 +110,10 @@ How folders appear:
 - **Order:** folders listed in Folder Order come first, in that order. Any other folder follows A to Z. ROMs at the root of the card come last. Change the order in **Settings → Menu Settings → Folder Order**, or in `library.ini`.
 - **Cart lettering:** each folder cart shows the first two letters or numbers of the folder name in capitals (US, EU, JP, HA…).
 - **Names:** `US`/`USA`, `EU`/`EUR`/`PAL` and `JP`/`JPN`/`JAP` show as United States, Europe and Japan. Other folders show their own name.
-- **64DD:** any folder with **"DD"** in its name gets the 64DD disk shape.
+- **64DD:** a folder with **DD**, **64DD** or **N64DD** as a separate word in its name (such as `N64 DD` or `64DD Games`) gets the 64DD disk shape. Names like "Addons" don't.
 - **Hidden:** folders in `hide =` in `library.ini` (by default `cpak_saves`), the `menu` folder, the saves folder and hidden system folders.
+- **Hide or unhide a folder from the menu:** on the folder row, press **C▶ → Hide this folder**. Turn on **Settings → Menu Settings → Show Hidden Folders** to see hidden folders again (dimmed), and use **C▶ → Unhide this folder** to bring one back for good.
+- **Start-up folder:** the menu opens on the folder row by default. To open straight into a folder, use **C▶ → Open this folder at start-up** on the folder row, or **Settings → Menu Settings → Start In**.
 - **Games only:** save, cheat, patch and text files are hidden from the Library.
 
 You can use any folder names you like; the five above are only a suggestion.
@@ -129,6 +132,7 @@ The menu shows cartridge label art from **`labels.db`**, the label database the 
 How labels are matched:
 
 - Each ROM is matched by a checksum of its first 8 KB, the same method the Analogue 3D uses. `.z64`, `.v64` and `.n64` byte orders all work.
+- Labels fill the cart's label window, which has an arched top and a thin medium grey outline.
 - A game with no match shows a **blank grey cartridge**.
 - **Choose your own label:** on a game, press **C▶** and go to Customization → Choose Label. Your choices are saved in `/menu/label_overrides.ini`.
 
@@ -178,9 +182,27 @@ In 4:3 mode the menu still works, but everything looks narrow.
 | **A** | Open a folder, or **play** the selected game straight away with its saved settings |
 | **B** | Back up one folder |
 | **C▶** | **Configure** the selected game (see below) |
-| **D-pad up** | Open the **A–Z jump bar** inside a folder. Left and right pick a letter, A jumps, B or down closes it. |
+| **D-pad up** | Open the **A–Z jump bar** inside a folder. Left and right pick a letter, A jumps, B or down closes it. Names starting with a number or symbol are under **#**. |
 | **Start** | Settings |
 | **C▲** (Favorites) | Remove the selected favourite |
+| **C▲** (Library, while a 64DD Game Pak is set) | Clear the Game Pak |
+
+### 64DD disks
+
+| Button | Action |
+|---|---|
+| **A** on a disk | Boot it in one press. The disk decides how (below). |
+| **C▶** on a disk | **Disk Options**, two tabs. **Options**: Play Disk, Play with Game Pak and a Favorite switch. **Disk Info**: disk details, Game Pak and swap disks (up/down scroll). Left goes to the tabs, B goes back. Also on disks in History and Favorites. |
+
+- **Stand-alone disks** (game codes starting with D, such as Mario Artist, SimCity 64 and Doshin the Giant) always boot on their own.
+- **Expansion disks** (F-Zero X Expansion Kit, Mario Party, Zelda, Pokémon Stadium 1 and 2 Japan, Dezaemon 3D) boot together with their cartridge, the **Game Pak**:
+  1. On the cartridge (for example the Japanese F-Zero X), press **C▶ → Hardware → Use as 64DD Game Pak**. This option only appears on expandable cartridges (game codes starting with C). The menu jumps to your 64DD folder, and the footer shows *64DD GAME PAK: F-Zero X*.
+  2. Press **A** on the expansion disk. With the matching Game Pak set, the pair boots straight away.
+  3. If no Game Pak is set, or it's the wrong game or region, the menu says what's needed, for example *Needs F-Zero X (CFZJ), Japan region, as Game Pak*. You can then boot the disk alone or go back.
+- The Game Pak stays set until you clear it (C▲ in the Library, or Clear 64DD Game Pak in the cartridge's Configure). Stand-alone disks ignore it.
+- ROM + disk pairs saved in **History** or **Favorites** boot together in one press.
+- 64DD games need the 64DD IPL files in `/menu/64ddipl` (see N64FlashcartMenu's 64DD guide), and expansion disks must match the cartridge's region.
+- After a 64DD game, it can take **two presses of RESET** to get back to the menu. The first gives a blank screen. This comes from the stock N64FlashcartMenu, not from this menu.
 
 History shows the 8 games played most recently. Favorites shows up to 8 games.
 
@@ -194,9 +216,9 @@ History shows the 8 games played most recently. Favorites shows up to 8 games.
 | **B** | Back |
 
 Configure has four categories:
-- **Hardware:** CIC, save type, TV type, Clear RAM
-- **Cheats:** Use Cheats, and the Datel code editor
-- **Customization:** Choose Label, Favorite, Reset Label
+- **Hardware:** CIC, save type, TV type, Clear RAM, and **Use as 64DD Game Pak** on expandable cartridges
+- **Cheats:** Use Cheats, the Datel code editor, and Show Cheat Files (applies to all games)
+- **Customization:** Choose Label, Favorite, Reset Label, and **Delete Game** (press A twice to confirm; removes the game file and its History/Favorites entries; saves are kept)
 - **ROM Info:** details from the ROM header
 
 Settings are saved per game and used every time you press A to play.
@@ -211,9 +233,18 @@ Settings are saved per game and used every time you press A to play.
 | **History** | The 8 games played most recently, as a cartridge row |
 | **Favorites** | Up to 8 favourite games. Add one with C▶ → Customization → Favorite. |
 | **Settings** | Menu Settings, Date & Time, Controller Pak, Flashcart Information, N64 Information, About |
-| **Menu Settings** | Folder Order, Show Hidden Files, Show Saves Folder, Show Save Files, Show Cheat Files, Use Saves Folder, Fast Reboot ROM, PAL60, Sound Effects, Background Music, Reset |
+| **Menu Settings** | Folder Order, Start In, Show Hidden Folders, Show System Files, Show Saves, Show Text Files, Use Saves Folder, Fast Reboot ROM, PAL60, Sound Effects, Background Music, Reset |
 
 Long titles and values scroll sideways automatically.
+
+**Other files in the Library:**
+- **Show Saves** shows the saves folder on the folder row and save files beside games, with the game's label; A shows their details.
+- **Show Cheat Files** (in a game's Configure → Cheats, applies to all games) shows `.datel` / `.cht` files; A shows their details.
+- **Show Text Files** shows `.txt`, `.ini` and `.yml` files; A opens them in the text viewer.
+
+**Deleting:** C▶ on a file inside a folder offers **Delete selected entry…**, which asks you to confirm first. Folders on the folder row can't be deleted from the menu.
+
+**Controller Pak:** up/down (or left/right) pick the controller. With a Pak in, A backs up the whole Pak, Z backs up one note and R opens options (delete a note, format, restore info). Backups go to `cpak_saves` (`.mpk`) and `cpak_saves/notes` (`.mpkn`); turn on Show Hidden Folders to open that folder, then A on a backup to restore it.
 
 **Pop-ups:** option lists (C▶ on a folder or other file, the Controller Pak and Datel options) and messages appear as a dark rounded panel over the dimmed screen. The selected option is a white pill.
 
@@ -266,7 +297,7 @@ hide = cpak_saves
 | Every cart is blank grey | `labels.db` is missing or in the wrong place. It must be at `/menu/labels.db`. |
 | Some carts are blank grey | That ROM dump isn't in `labels.db`, which often happens with PAL, Japanese or revised versions. Use Choose Label, or add the label with the labels.db editor. |
 | Menu looks squashed, narrow or has borders | Set the SummerCart64 to Stretch, Fill and Clean (see [Analogue 3D display settings](#analogue-3d-display-settings)). |
-| A folder is missing | Check the `hide =` line in `library.ini`, and the Show Hidden Files and Show Saves Folder switches. |
+| A folder is missing | It may be hidden: turn on Menu Settings → Show Hidden Folders, then C▶ → Unhide this folder. Also check Show Saves for the saves folder. |
 | Folder in the wrong place | Settings → Menu Settings → Folder Order, or edit `order =` in `library.ini`. |
 | "Directory is too large" | Use an Expansion Pak, or split the folder. |
 
@@ -275,17 +306,16 @@ hide = cpak_saves
 ## Known limitations
 
 - The N64 outputs at most 640 pixels across. The Analogue 3D stretches this to 16:9, so each pixel is about a third wider than tall. Text uses fonts narrowed to compensate, which makes them slightly soft. Labels and carts are pre-shaped.
-- These screens keep the stock layout, restyled with the 3DOS fonts and colours: Controller Pak, the Datel editor, Date & Time adjustment, and the N64, Flashcart and About information pages.
+- All menu screens use the 3DOS style, except the image viewer, music player and emulator loading screens, which still use the stock layout.
 - Text uses basic Latin characters only. Accented and Japanese characters show as spaces.
+- Labels are drawn at about 58×86 pixels, so fine label detail is limited by the N64's resolution.
 - Only what is in `labels.db` can be shown. There is no automatic download, and labels can't be searched by name.
-- There is a missing feature when setting a primary disk for 64DD games as carts now boot with one click. If you press C-Right to enter configure and then back out with B this will set the cart as a primary disk - this will be one of the first fixes and is in the roadmap to repair.
-- Setting directories as default needs a fix and associated settings
 
 ---
 
 ## Building from source
 
-The menu is an N64FlashcartMenu v0.3.5 fork. Source is provided as a patch against the `V0.3.5` tag (`source/sc64-library-source.patch` in this folder, with the full history in `source/sc64-library.bundle`) or as the fork repository.
+The menu is an N64FlashcartMenu v0.3.5 fork. Source is provided as a patch against the `V0.3.5` tag (`source/sc64-library-source.patch` in this folder, with the full history in `source/sc64-library.bundle`) or from the project page, [JGSPL-dev/sc64-A3D-library-menu](https://github.com/JGSPL-dev/sc64-A3D-library-menu).
 
 ```bash
 git clone --recurse-submodules https://github.com/Polprzewodnikowy/N64FlashcartMenu.git
@@ -296,7 +326,7 @@ git apply --binary /path/to/source/sc64-library-source.patch
 
 # Toolchain: libdragon preview (see N64FlashcartMenu's README, or use its devcontainer/Docker image)
 export N64_INST=/path/to/libdragon-toolchain
-make MENU_VERSION='"0.3.5-library-1.3"'
+make MENU_VERSION='"0.3.5-library-1.4"'
 # Output: output/sc64menu.n64
 ```
 
