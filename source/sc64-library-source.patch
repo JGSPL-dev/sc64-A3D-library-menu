@@ -4253,10 +4253,10 @@ index fa1139e..803b4fe 100644
  /**
 diff --git a/src/menu/labels_db.c b/src/menu/labels_db.c
 new file mode 100644
-index 0000000..b7e0029
+index 0000000..b2e53cc
 --- /dev/null
 +++ b/src/menu/labels_db.c
-@@ -0,0 +1,346 @@
+@@ -0,0 +1,375 @@
 +/**
 + * @file labels_db.c
 + * @brief Reader for the Analogue 3D cartridge label database (labels.db)
@@ -4421,6 +4421,10 @@ index 0000000..b7e0029
 +        }
 +    }
 +    return -1;
++}
++
++uint32_t labels_crc32 (const uint8_t *data, size_t len) {
++    return crc32_ieee(data, len);
 +}
 +
 +int labels_db_count (void) {
@@ -4603,12 +4607,37 @@ index 0000000..b7e0029
 +    }
 +    ini_save(overrides, overrides_path);
 +}
++
++
++// ---------------------------------------------------------------------------
++// Per-game switches in the same file, keyed like the label choices:
++//   [<section>]
++//   <hash of the path> = <number>
++
++int labels_flag_get (const char *section, const char *path, int default_value) {
++    if (!overrides) {
++        return default_value;
++    }
++    char key[12];
++    override_key(path, key);
++    return ini_get_int(overrides, section, key, default_value);
++}
++
++void labels_flag_set (const char *section, const char *path, int value) {
++    if (!overrides || !overrides_path) {
++        return;
++    }
++    char key[12];
++    override_key(path, key);
++    ini_set_int(overrides, section, key, value);
++    ini_save(overrides, overrides_path);
++}
 diff --git a/src/menu/labels_db.h b/src/menu/labels_db.h
 new file mode 100644
-index 0000000..249399e
+index 0000000..db0bcae
 --- /dev/null
 +++ b/src/menu/labels_db.h
-@@ -0,0 +1,74 @@
+@@ -0,0 +1,84 @@
 +/**
 + * @file labels_db.h
 + * @brief Reader for the Analogue 3D cartridge label database (labels.db)
@@ -4624,6 +4653,7 @@ index 0000000..249399e
 +
 +#include <stdbool.h>
 +#include <stdint.h>
++#include <stddef.h>
 +#include <libdragon.h>
 +
 +#define LABEL_WIDTH     (74)
@@ -4651,6 +4681,9 @@ index 0000000..249399e
 + * @return true on success (caller frees with surface_free), false when there is no label.
 + */
 +bool labels_db_load (uint32_t id, surface_t *out);
++
++/** @brief CRC32 (IEEE), as used for cartridge IDs / Analogue 3D signatures. */
++uint32_t labels_crc32 (const uint8_t *data, size_t len);
 +
 +/** @brief Number of labels in the database. */
 +int labels_db_count (void);
@@ -4681,6 +4714,12 @@ index 0000000..249399e
 +
 +/** @brief Remember a cartridge colour for this ROM; -1 goes back to its original colour. */
 +void labels_colour_override_set (const char *rom_path, int colour);
++
++/** @brief A per-game number stored in label_overrides.ini under @p section (or @p default_value). */
++int labels_flag_get (const char *section, const char *path, int default_value);
++
++/** @brief Store a per-game number in label_overrides.ini under @p section. */
++void labels_flag_set (const char *section, const char *path, int value);
 +
 +#endif /* LABELS_DB_H__ */
 diff --git a/src/menu/library_config.c b/src/menu/library_config.c
@@ -6568,6 +6607,41 @@ index 0000000..613f7de
 +void library_label_cache_clear (void);
 +
 +#endif /* LIBRARY_UI_H__ */
+diff --git a/src/menu/views/a3d_entry.h b/src/menu/views/a3d_entry.h
+new file mode 100644
+index 0000000..0be545e
+--- /dev/null
++++ b/src/menu/views/a3d_entry.h
+@@ -0,0 +1,29 @@
++/**
++ * @file a3d_entry.h
++ * @brief Analogue 3D Library entries (shared by ROM Info and Disk Options).
++ * @ingroup menu
++ */
++
++#ifndef A3D_ENTRY_H__
++#define A3D_ENTRY_H__
++
++#include <stdbool.h>
++#include <stdio.h>
++#include "../menu_state.h"
++
++/** @brief Write a JSON string (quoted, escaped, printable ASCII only). */
++void a3d_json_string (FILE *f, const char *s);
++
++/** @brief The Analogue 3D's name for a cart colour (cart_colour_t). */
++const char *a3d_cart_colour (int colour);
++
++/** @brief Folder name as the Analogue 3D writes it: "<title> <signature in lower case>". */
++void a3d_folder_name (const char *title, const char *sig, char *out, size_t len);
++
++/** @brief Write settings.json into @p dir (from /a3d/template/settings.json when present). */
++bool a3d_write_settings_json (menu_t *menu, path_t *dir, const char *colour, bool *used_template);
++
++/** @brief Write /a3d/README.txt once. */
++void a3d_write_readme (menu_t *menu);
++
++#endif
 diff --git a/src/menu/views/browser.c b/src/menu/views/browser.c
 index 56568d9..38bf8c2 100644
 --- a/src/menu/views/browser.c
@@ -9549,10 +9623,10 @@ index 0000000..112db07
 +}
 diff --git a/src/menu/views/library_configure.c b/src/menu/views/library_configure.c
 new file mode 100644
-index 0000000..571c990
+index 0000000..d5bf247
 --- /dev/null
 +++ b/src/menu/views/library_configure.c
-@@ -0,0 +1,763 @@
+@@ -0,0 +1,768 @@
 +/**
 + * @file library_configure.c
 + * @brief 3DOS-style per-game Configure screen (C-right in the Library).
@@ -9575,6 +9649,7 @@ index 0000000..571c990
 +#include "../sound.h"
 +#include "../ui_components/library_ui.h"
 +#include "views.h"
++#include "a3d_entry.h"
 +
 +typedef enum {
 +    CAT_HARDWARE,
@@ -9773,7 +9848,7 @@ index 0000000..571c990
 +// only for unrecognised carts, so template/library.json is optional (its "defaults" block is used).
 +// Each entry still gets its own game's details and cart colour.
 +
-+static void json_string (FILE *f, const char *s) {
++void a3d_json_string (FILE *f, const char *s) {
 +    fputc('"', f);
 +    for (; s && *s; s++) {
 +        unsigned char c = (unsigned char)*s;
@@ -9783,7 +9858,7 @@ index 0000000..571c990
 +    fputc('"', f);
 +}
 +
-+static const char *a3d_cart_colour (int colour) {
++const char *a3d_cart_colour (int colour) {
 +    switch (colour) {
 +        case CART_BLACK: return "black";
 +        case CART_RED: return "red";
@@ -9850,7 +9925,7 @@ index 0000000..571c990
 +
 +// Folder name as the Analogue 3D writes it: title, a space, the signature in lower case.
 +// Characters that can't be in a file name (and colons, as the Analogue 3D drops them) are removed.
-+static void a3d_folder_name (const char *title, const char *sig, char *out, size_t len) {
++void a3d_folder_name (const char *title, const char *sig, char *out, size_t len) {
 +    size_t n = 0;
 +    bool space = false;
 +    for (const char *c = title; *c && n + 1 < len; c++) {
@@ -9868,7 +9943,7 @@ index 0000000..571c990
 +    for (char *c = out + n; *c; c++) *c = (char)tolower((unsigned char)*c);
 +}
 +
-+static bool write_settings_json (menu_t *menu, path_t *dir, const char *colour, bool *used_template) {
++bool a3d_write_settings_json (menu_t *menu, path_t *dir, const char *colour, bool *used_template) {
 +    path_t *file = path_clone_push(dir, "settings.json");
 +    FILE *f = fopen(path_get(file), "w");
 +    path_free(file);
@@ -9908,6 +9983,28 @@ index 0000000..571c990
 +                   "    \"overclock\": \"auto\",\n    \"region\": \"auto\",\n    \"virtual_expansion_pak\": false,\n    \"horizontal_upscaling\": false\n  }\n}\n");
 +    }
 +    return fclose(f) == 0;
++}
++
++void a3d_write_readme (menu_t *menu) {
++    // A short how-to, written once.
++    path_t *readme = path_init(menu->storage_prefix, "/a3d/README.txt");
++    if (!file_exists(path_get(readme))) {
++        FILE *r = fopen(path_get(readme), "w");
++        if (r) {
++            fprintf(r, "Analogue 3D entries made by the SC64 A3D Library Menu\n\n"
++                       "Copy the Library folder in here to the root of your Analogue 3D's SD card\n"
++                       "(merge it with the Library folder already there). Each game gets a folder in\n"
++                       "Library/N64/Games named \"<title> <signature>\", as the Analogue 3D names them,\n"
++                       "with library.json (details and defaults) and settings.json (display settings).\n\n"
++                       "Make an entry with C-right on a game > ROM Info > Create Analogue 3D Entry.\n\n"
++                       "Your own settings: copy settings.json from any game folder on your Analogue 3D\n"
++                       "(one set up the way you like) into a folder here called template. New entries\n"
++                       "then use it; each game keeps its own details and cart colour. (A library.json\n"
++                       "there is optional.) Without a template, entries use Clean mode at 4:3.\n");
++            fclose(r);
++        }
++    }
++    path_free(readme);
 +}
 +
 +static void create_a3d_entry (menu_t *menu) {
@@ -9950,7 +10047,7 @@ index 0000000..571c990
 +    const char *colour = a3d_cart_colour(library_cart_colour_for_code(path_get(menu->load.rom_path), ri->game_code));
 +
 +    fprintf(f, "{\n  \"$schema\": \"https://schemas.analogue.co/platform/3d/library.json\",\n  \"data\": {\n");
-+    fprintf(f, "    \"title\": "); json_string(f, title); fprintf(f, ",\n");
++    fprintf(f, "    \"title\": "); a3d_json_string(f, title); fprintf(f, ",\n");
 +    fprintf(f, "    \"revision\": %u,\n", (unsigned)ri->version);
 +    fprintf(f, "    \"player_count\": %d,\n", players);
 +    fprintf(f, "    \"accessories\": [");
@@ -9963,8 +10060,8 @@ index 0000000..571c990
 +    #undef ACC
 +    fprintf(f, "],\n");
 +    fprintf(f, "    \"region\": [%s],\n", region);
-+    fprintf(f, "    \"developers\": ["); json_string(f, author); fprintf(f, "],\n");
-+    fprintf(f, "    \"publishers\": ["); json_string(f, author); fprintf(f, "]");
++    fprintf(f, "    \"developers\": ["); a3d_json_string(f, author); fprintf(f, "],\n");
++    fprintf(f, "    \"publishers\": ["); a3d_json_string(f, author); fprintf(f, "]");
 +    if (year >= 1990 && year <= 2100) fprintf(f, ",\n    \"release_year\": %d", year);
 +    fprintf(f, "\n  },\n  \"defaults\": {\n");
 +    fprintf(f, "    \"cart_color\": \"%s\"", colour);
@@ -9987,28 +10084,10 @@ index 0000000..571c990
 +    }
 +    bool ok = (fclose(f) == 0);
 +    bool settings_template = false;
-+    ok = write_settings_json(menu, dir, colour, &settings_template) && ok;
++    ok = a3d_write_settings_json(menu, dir, colour, &settings_template) && ok;
 +    path_free(dir);
 +
-+    // A short how-to, written once.
-+    path_t *readme = path_init(menu->storage_prefix, "/a3d/README.txt");
-+    if (!file_exists(path_get(readme))) {
-+        FILE *r = fopen(path_get(readme), "w");
-+        if (r) {
-+            fprintf(r, "Analogue 3D entries made by the SC64 A3D Library Menu\n\n"
-+                       "Copy the Library folder in here to the root of your Analogue 3D's SD card\n"
-+                       "(merge it with the Library folder already there). Each game gets a folder in\n"
-+                       "Library/N64/Games named \"<title> <signature>\", as the Analogue 3D names them,\n"
-+                       "with library.json (details and defaults) and settings.json (display settings).\n\n"
-+                       "Make an entry with C-right on a game > ROM Info > Create Analogue 3D Entry.\n\n"
-+                       "Your own settings: copy settings.json from any game folder on your Analogue 3D\n"
-+                       "(one set up the way you like) into a folder here called template. New entries\n"
-+                       "then use it; each game keeps its own details and cart colour. (A library.json\n"
-+                       "there is optional.) Without a template, entries use Clean mode at 4:3.\n");
-+            fclose(r);
-+        }
-+    }
-+    path_free(readme);
++    a3d_write_readme(menu);
 +
 +    if (ok) {
 +        char msg[160];
@@ -10727,25 +10806,37 @@ index 0000000..9dc3526
 +    draw(menu, display);
 +}
 diff --git a/src/menu/views/load_disk.c b/src/menu/views/load_disk.c
-index 083bd9a..9f851f0 100644
+index 083bd9a..5d541d1 100644
 --- a/src/menu/views/load_disk.c
 +++ b/src/menu/views/load_disk.c
-@@ -4,6 +4,9 @@
+@@ -1,10 +1,19 @@
++#include <ctype.h>
+ #include "../cart_load.h"
+ #include "../disk_info.h"
+ #include "boot/boot.h"
  #include "../sound.h"
  #include "views.h"
  #include "../bookkeeping.h"
 +#include "../dd_pairing.h"
 +#include "../fonts.h"
 +#include "../ui_components/library_ui.h"
++#include <stdio.h>
++#include <stdlib.h>
  #include <string.h>
++#include "../labels_db.h"
++#include "utils/fs.h"
++#include "a3d_entry.h"
  
  #define DISK_SLOTS_MAX 3 // Maximum number of disk slots supported (excluding the primary disk)
-@@ -12,6 +15,13 @@ static component_boxart_t *boxart;
+ 
+@@ -12,6 +21,15 @@ static component_boxart_t *boxart;
  static char *disk_filename;
  static uint16_t swap_disk_count = 0;
  
 +// Library one-press boot: title for the loading screen, and the "needs a Game Pak" prompt.
 +static char disk_title[96];
++static char flash_text[160];
++static int flash_frames = 0;
 +static bool prompt_active = false;
 +static int prompt_selected = 0;
 +static char prompt_line1[160];
@@ -10754,27 +10845,158 @@ index 083bd9a..9f851f0 100644
  static char *convert_disk_error_message (disk_err_t err) {
      switch (err) {
          case DISK_ERR_IO: return "I/O error during loading 64DD disk information";
-@@ -39,33 +49,155 @@ static char *format_disk_region (disk_region_t region) {
+@@ -39,33 +57,340 @@ static char *format_disk_region (disk_region_t region) {
      }
  }
  
 -static void add_favorite (menu_t *menu, void *arg) {
 -    bookkeeping_favorite_add(&menu->bookkeeping, menu->load.disk_slots.primary.disk_path, menu->load.rom_path, BOOKKEEPING_TYPE_DISK);
-+// Disk Options rows you can select: 0 Play Disk, 1 Play with Game Pak, 2 Favorite.
++// Disk Options: categories on the left (Options, Analogue 3D, Disk Info), rows on the right.
++// Options rows: 0 Play Disk, 1 Play with Game Pak, 2 Favorite, 3 Delete Disk.
++// Analogue 3D rows: 0 Signature Boot, 1 Create Analogue 3D Entry.
 +#define OPT_PLAY 0
 +#define OPT_PLAY_PAK 1
 +#define OPT_FAVORITE 2
-+#define OPT_COUNT 3
++#define OPT_DELETE 3
++#define OPT_COUNT 4
++#define A3D_SIG_BOOT 0
++#define A3D_ENTRY 1
++#define A3D_COUNT 2
++static bool confirm_delete = false;
++
++// ---------------------------------------------------------------------------
++// Per-disk Analogue 3D signature (Signature Boot).
++// The Analogue 3D recognises a game from the first 8 KB it sees in cartridge space, and a disk
++// boot leaves that unchanged, so every disk counts as "SummerCart64". With this switched on for a
++// disk, the menu writes a small cartridge header carrying the disk's game code into the (unused)
++// cartridge space just before the disk boots, and reads it back the way a game boot does, so the
++// Analogue 3D may see a game of its own. The disk itself still boots from the 64DD start-up code.
++#define DD_SIG_SECTION "dd_signature_boot"
++#define DD_HEADER_BYTES 8192
++static uint8_t dd_header[DD_HEADER_BYTES] __attribute__((aligned(16)));
++static char dd_signature[12];
++
++static void dd_build_header (const disk_info_t *di) {
++    memset(dd_header, 0, sizeof(dd_header));
++    static const uint8_t start[16] = { 0x80, 0x37, 0x12, 0x40, 0x00, 0x00, 0x00, 0x0F,
++                                       0x80, 0x00, 0x04, 0x00, 0x00, 0x00, 0x14, 0x4C };
++    memcpy(dd_header, start, sizeof(start));
++    char name[21];
++    snprintf(name, sizeof(name), "64DD DISK %.4s      ", di->id);
++    memcpy(&dd_header[0x20], name, 20);
++    memcpy(&dd_header[0x3B], di->id, 4);
++    dd_header[0x3F] = di->version;
++    // Never use a signature that belongs to something else: a game in labels.db (the Analogue 3D's
++    // own list of cartridges), the SummerCart64 itself, or the all-0xFF/blank values. If the
++    // checksum clashes, change a spare header byte (0x34) and try again; the result for a given
++    // disk is always the same.
++    uint32_t sig = 0;
++    for (int salt = 0; salt < 256; salt++) {
++        dd_header[0x34] = (uint8_t)salt;
++        sig = labels_crc32(dd_header, sizeof(dd_header));
++        bool clash = (sig == 0x57EC24F9u) || (sig == 0xFFFFFFFFu) || (sig == 0xFFFFFFFEu) || (sig == 0)
++                  || (labels_db_available() && labels_db_index_of(sig) >= 0);
++        if (!clash) break;
++    }
++    snprintf(dd_signature, sizeof(dd_signature), "%08lX", (unsigned long)sig);
++}
++
++static bool dd_sig_boot_on (menu_t *menu) {
++    // On unless switched off for this disk. Only used when a disk boots without a cartridge.
++    return labels_flag_get(DD_SIG_SECTION, path_get(menu->load.disk_slots.primary.disk_path), 1) == 1;
++}
++
++// Release details for the 64DD's released disks, matched on the disk's name, so the Analogue 3D
++// shows the right year (without one it shows 1970). Unknown disks get no year.
++typedef struct { const char *match; int year; const char *developer; const char *publisher; } dd_known_t;
++static const dd_known_t dd_known[] = {
++    { "paint studio",      1999, "Nintendo",       "Nintendo" },
++    { "talent studio",     2000, "Nintendo",       "Nintendo" },
++    { "communication kit", 2000, "Nintendo",       "Nintendo" },
++    { "polygon studio",    2000, "Nintendo",       "Nintendo" },
++    { "simcity",           2000, "HAL Laboratory", "Nintendo" },
++    { "sim city",          2000, "HAL Laboratory", "Nintendo" },
++    { "tinkling",          2000, "Param",          "Nintendo" },
++    { "chibikko",          2000, "Param",          "Nintendo" },
++    { "kaihou",            2000, "Param",          "Nintendo" },
++    { "kaiho",             2000, "Param",          "Nintendo" },
++    { "doshin",            1999, "Param",          "Nintendo" },
++    { "pro golf",          2000, "Unknown",        "Unknown" },
++    { "expansion kit",     2000, "Nintendo",       "Nintendo" },
++    { "randnet",           1999, "Unknown",        "Randnet" },
++};
++
++static const dd_known_t *dd_known_lookup (const char *title) {
++    char low[96];
++    size_t i = 0;
++    for (; title[i] && i < sizeof(low) - 1; i++) low[i] = (char)tolower((unsigned char)title[i]);
++    low[i] = 0;
++    for (size_t k = 0; k < sizeof(dd_known) / sizeof(dd_known[0]); k++) {
++        if (strstr(low, dd_known[k].match)) return &dd_known[k];
++    }
++    return NULL;
++}
++
++static void dd_write_header_to_cart (void) {
++    // Cartridge space is SDRAM on the SummerCart64 and isn't used by a disk boot.
++    data_cache_hit_writeback(dd_header, sizeof(dd_header));
++    dma_write_raw_async(dd_header, 0x10000000, sizeof(dd_header));
++    dma_wait();
++    // Read it back the way the boot code reads a cartridge, so the Analogue 3D sees it.
++    static uint8_t readback[DD_HEADER_BYTES] __attribute__((aligned(16)));
++    data_cache_hit_writeback_invalidate(readback, sizeof(readback));
++    dma_read_raw_async(readback, 0x10000000, sizeof(readback));
++    dma_wait();
++}
++
++static void dd_create_a3d_entry (menu_t *menu) {
++    disk_info_t *di = &menu->load.disk_slots.primary.disk_info;
++    char folder[128];
++    a3d_folder_name(disk_title, dd_signature, folder, sizeof(folder));
++    path_t *dir = path_init(menu->storage_prefix, "/a3d/Library/N64/Games");
++    path_push(dir, folder);
++    bool ok = !directory_create(path_get(dir));
++    if (ok) {
++        path_t *file = path_clone_push(dir, "library.json");
++        FILE *f = fopen(path_get(file), "w");
++        path_free(file);
++        ok = (f != NULL);
++        if (f) {
++            const char *region = di->region == DISK_REGION_JAPANESE ? "\"japan\"" : (di->region == DISK_REGION_USA ? "\"usa\"" : "\"usa\", \"europe\", \"japan\"");
++            fprintf(f, "{\n  \"$schema\": \"https://schemas.analogue.co/platform/3d/library.json\",\n  \"data\": {\n");
++            fprintf(f, "    \"title\": "); a3d_json_string(f, disk_title); fprintf(f, ",\n");
++            fprintf(f, "    \"revision\": %u,\n    \"player_count\": 1,\n    \"accessories\": [\"expansion-pak\"],\n", (unsigned)di->version);
++            const dd_known_t *k = dd_known_lookup(disk_title);
++            fprintf(f, "    \"region\": [%s],\n", region);
++            fprintf(f, "    \"developers\": "); fprintf(f, "["); a3d_json_string(f, k ? k->developer : "Unknown"); fprintf(f, "],\n");
++            fprintf(f, "    \"publishers\": ["); a3d_json_string(f, k ? k->publisher : "Unknown"); fprintf(f, "]");
++            if (k) fprintf(f, ",\n    \"release_year\": %d", k->year);
++            fprintf(f, "\n  },\n");
++            fprintf(f, "  \"defaults\": {\n    \"cart_color\": \"gray\",\n    \"disable_anti_aliasing\": false,\n    \"disable_deblur\": false,\n"
++                       "    \"disable_texture_filtering\": false,\n    \"enable_32_bit_color\": false,\n    \"force_original_hardware\": false,\n"
++                       "    \"force_progressive_output\": false,\n    \"horizontal_upscaling\": false,\n    \"virtual_expansion_pak\": false,\n"
++                       "    \"overclock\": \"auto\",\n    \"region\": \"auto\",\n    \"virtual_accessory\": \"no-pak\"\n  }\n}\n");
++            ok = (fclose(f) == 0);
++        }
++    }
++    bool used_template = false;
++    if (ok) ok = a3d_write_settings_json(menu, dir, "gray", &used_template);
++    path_free(dir);
++    a3d_write_readme(menu);
++    snprintf(flash_text, sizeof(flash_text), ok ? "Saved %s%s" : "Couldn't write the Analogue 3D entry", folder, used_template ? " (your template)" : "");
++    flash_frames = 150;
++    sound_play_effect(ok ? SFX_SETTING : SFX_ERROR);
++}
 +static int option_selected = 0;
-+// Two tabs: Options (what to do) and Disk Info (scrolls with up/down).
++static int a3d_selected = 0;
 +#define TAB_OPTIONS 0
-+#define TAB_INFO 1
++#define TAB_A3D 1
++#define TAB_INFO 2
++#define TAB_COUNT 3
 +static int tab = TAB_OPTIONS;
-+static bool rows_focused = true;
++static bool rows_focused = false;
 +static int info_selected = 0;
 +static int info_count = 0;
-+static char flash_text[96];
-+static int flash_frames = 0;
 +
 +// The cartridge saved with the disk in Favorites: the Game Pak, but only when it fits this disk.
 +static path_t *favorite_pair_rom (menu_t *menu) {
@@ -10783,12 +11005,8 @@ index 083bd9a..9f851f0 100644
 +        return menu->load.rom_path;
 +    }
 +    return NULL;
- }
- 
--static component_context_menu_t options_context_menu = { .list = {
--    { .text = "Add to favorites", .action = add_favorite },
--    COMPONENT_CONTEXT_MENU_LIST_END,
--}};
++}
++
 +static int favorite_slot (menu_t *menu) {
 +    path_t *rom = favorite_pair_rom(menu);
 +    for (int i = 0; i < FAVORITES_COUNT; i++) {
@@ -10805,8 +11023,12 @@ index 083bd9a..9f851f0 100644
 +        }
 +    }
 +    return -1;
-+}
-+
+ }
+ 
+-static component_context_menu_t options_context_menu = { .list = {
+-    { .text = "Add to favorites", .action = add_favorite },
+-    COMPONENT_CONTEXT_MENU_LIST_END,
+-}};
 +static void toggle_favorite (menu_t *menu) {
 +    int slot = favorite_slot(menu);
 +    if (slot >= 0) {
@@ -10818,6 +11040,24 @@ index 083bd9a..9f851f0 100644
 +        snprintf(flash_text, sizeof(flash_text), rom ? "Added to Favorites with its Game Pak" : "Added to Favorites");
 +    }
 +    flash_frames = 90;
++}
++
++static void delete_disk (menu_t *menu) {
++    path_t *disk = menu->load.disk_slots.primary.disk_path;
++    if (remove(path_get(disk)) != 0) {
++        snprintf(flash_text, sizeof(flash_text), "Couldn't delete this disk");
++        flash_frames = 90;
++        sound_play_effect(SFX_ERROR);
++        return;
++    }
++    // History and Favorites entries for it (on its own or paired with a cartridge) go too.
++    // Its save data and the Game Pak cartridge are kept.
++    bookkeeping_remove_path(&menu->bookkeeping, disk);
++    snprintf(menu->notice.text, sizeof(menu->notice.text), "%s deleted", disk_title);
++    menu->notice.frames = 150;
++    menu->browser.valid = false;           // reload the folder without it
++    menu->next_mode = MENU_MODE_BROWSER;
++    sound_play_effect(SFX_SETTING);
 +}
 +
 +static bool option_disabled (menu_t *menu, int i) {
@@ -10865,9 +11105,20 @@ index 083bd9a..9f851f0 100644
 -        menu->load_pending.disk_file = true;
 -        menu->load.combined_disk_rom = true;
 -        sound_play_effect(SFX_SETTING);
+-    } else if (menu->actions.back) {
++    // Any move away from Delete Disk cancels its "press A again".
++    if (confirm_delete && !menu->actions.enter && (menu->actions.go_up || menu->actions.go_down
++            || menu->actions.go_left || menu->actions.go_right || menu->actions.back)) {
++        confirm_delete = false;
++    }
++
 +    if (!rows_focused) {
-+        if ((menu->actions.go_up || menu->actions.go_down) && !menu->actions.go_fast) {
-+            tab = menu->actions.go_up ? TAB_OPTIONS : TAB_INFO;
++        // Category bar on the left: up/down choose, A or right enters, B leaves Disk Options.
++        if (menu->actions.go_up && tab > 0) {
++            tab--;
++            sound_play_effect(SFX_CURSOR);
++        } else if (menu->actions.go_down && tab < TAB_COUNT - 1) {
++            tab++;
 +            sound_play_effect(SFX_CURSOR);
 +        } else if (menu->actions.enter || menu->actions.go_right) {
 +            rows_focused = true;
@@ -10879,11 +11130,18 @@ index 083bd9a..9f851f0 100644
 +        }
 +        return;
 +    }
-+    if (menu->actions.go_left && !menu->actions.go_fast) {
++
++    // In the rows: B or left goes back to the category bar.
++    if (menu->actions.back || (menu->actions.go_left && !menu->actions.go_fast)) {
 +        rows_focused = false;
-+        sound_play_effect(SFX_EXIT);
+         sound_play_effect(SFX_EXIT);
+-        menu->next_mode = MENU_MODE_BROWSER;
+-    } else if (menu->actions.options) {
+-        ui_components_context_menu_show(&options_context_menu);
+-        sound_play_effect(SFX_SETTING);
 +        return;
 +    }
++
 +    if (tab == TAB_INFO) {
 +        if (menu->actions.go_up && info_selected > 0) {
 +            info_selected--;
@@ -10891,20 +11149,38 @@ index 083bd9a..9f851f0 100644
 +        } else if (menu->actions.go_down && info_selected < info_count - 1) {
 +            info_selected++;
 +            sound_play_effect(SFX_CURSOR);
-+        } else if (menu->actions.back) {
-+            sound_play_effect(SFX_EXIT);
-+            menu->next_mode = back_mode(menu);
 +        }
 +        return;
 +    }
++
++    if (tab == TAB_A3D) {
++        if (menu->actions.go_up && a3d_selected > 0) {
++            a3d_selected--;
++            sound_play_effect(SFX_CURSOR);
++        } else if (menu->actions.go_down && a3d_selected < A3D_COUNT - 1) {
++            a3d_selected++;
++            sound_play_effect(SFX_CURSOR);
++        } else if (menu->actions.enter || (menu->actions.go_right && a3d_selected == A3D_SIG_BOOT)) {
++            if (a3d_selected == A3D_SIG_BOOT) {
++                labels_flag_set(DD_SIG_SECTION, path_get(menu->load.disk_slots.primary.disk_path), dd_sig_boot_on(menu) ? 0 : 1);
++                sound_play_effect(SFX_SETTING);
++            } else if (menu->actions.enter) {
++                dd_create_a3d_entry(menu);
++            }
++        }
++        return;
++    }
++
 +    if (menu->actions.go_up || menu->actions.go_down) {
 +        int dir = menu->actions.go_up ? -1 : 1;
 +        int i = option_selected;
 +        do {
-+            i = (i + dir + OPT_COUNT) % OPT_COUNT;
-+        } while (option_disabled(menu, i) && i != option_selected);
-+        option_selected = i;
-+        sound_play_effect(SFX_CURSOR);
++            i = i + dir;
++        } while (i >= 0 && i < OPT_COUNT && option_disabled(menu, i));
++        if (i >= 0 && i < OPT_COUNT) {
++            option_selected = i;
++            sound_play_effect(SFX_CURSOR);
++        }
 +    } else if (menu->actions.enter) {
 +        if (option_selected == OPT_PLAY) {
 +            menu->load_pending.disk_file = true;
@@ -10917,18 +11193,19 @@ index 083bd9a..9f851f0 100644
 +        } else if (option_selected == OPT_FAVORITE) {
 +            toggle_favorite(menu);
 +            sound_play_effect(SFX_SETTING);
++        } else if (option_selected == OPT_DELETE) {
++            if (!confirm_delete) {
++                confirm_delete = true;
++                sound_play_effect(SFX_SETTING);
++            } else {
++                confirm_delete = false;
++                delete_disk(menu);
++            }
 +        }
-     } else if (menu->actions.back) {
-         sound_play_effect(SFX_EXIT);
--        menu->next_mode = MENU_MODE_BROWSER;
--    } else if (menu->actions.options) {
--        ui_components_context_menu_show(&options_context_menu);
--        sound_play_effect(SFX_SETTING);
-+        menu->next_mode = back_mode(menu);
      }
  }
  
-@@ -140,106 +272,116 @@ static void scan_for_swap_disks(menu_t *menu) {
+@@ -140,106 +465,124 @@ static void scan_for_swap_disks(menu_t *menu) {
      path_free(dir_path);
  }
  
@@ -11082,6 +11359,11 @@ index 083bd9a..9f851f0 100644
 +        rows[n++] = (lib_row_t) { .section = "PLAY", .label = "Play Disk", .kind = LIB_ROW_ACTION };
 +        rows[n++] = (lib_row_t) { .label = "Play with Game Pak", .value = pak_short, .kind = LIB_ROW_ACTION, .disabled = !menu->load.rom_path };
 +        rows[n++] = (lib_row_t) { .section = "LIBRARY", .label = "Favorite", .kind = LIB_ROW_TOGGLE, .on = favorite_slot(menu) >= 0 };
++        rows[n++] = (lib_row_t) { .section = "MANAGE", .label = confirm_delete ? "Press A again to delete this disk" : "Delete Disk",
++            .value = confirm_delete ? "SURE?" : ">", .kind = LIB_ROW_ACTION };
++    } else if (tab == TAB_A3D) {
++        rows[n++] = (lib_row_t) { .section = "SIGNATURE", .label = "Signature Boot", .kind = LIB_ROW_TOGGLE, .on = dd_sig_boot_on(menu) };
++        rows[n++] = (lib_row_t) { .label = "Create Analogue 3D Entry", .value = dd_signature, .kind = LIB_ROW_ACTION, .mono = true };
 +    } else {
 +    rows[n++] = (lib_row_t) { .section = "DISK", .label = "Game Code", .value = code, .mono = true };
 +    rows[n++] = (lib_row_t) { .label = "Region", .value = format_disk_region(di->region), .mono = true };
@@ -11103,18 +11385,19 @@ index 083bd9a..9f851f0 100644
 +    }
 +    info_count = n;
 +    }
-+
-+    const char *cats[] = { "Options", "Disk Info" };
+ 
+-        ui_components_context_menu_draw(&options_context_menu);
++    const char *cats[] = { "Options", "Analogue 3D", "Disk Info" };
 +    char title[128];
 +    snprintf(title, sizeof(title), "Disk Options [%s]", disk_title);
-+    library_ui_config_page(title, cats, 2, tab, rows_focused, rows, n, tab == TAB_OPTIONS ? option_selected : info_selected);
++    library_ui_config_page(title, cats, TAB_COUNT, tab, rows_focused, rows, n,
++        tab == TAB_OPTIONS ? option_selected : (tab == TAB_A3D ? a3d_selected : info_selected));
 +
 +    if (flash_frames > 0) {
 +        flash_frames--;
 +        library_ui_text(FNT_LIB_SANS, STL_DEFAULT, DX(LIB_COLUMN_X), DY(640), DX(700), ALIGN_LEFT, flash_text);
 +    }
- 
--        ui_components_context_menu_draw(&options_context_menu);
++
 +    if (!rows_focused) {
 +        const lib_button_t b[] = { LIB_BTN_A, LIB_BTN_B };
 +        const char *t[] = { "Select", "Back" };
@@ -11125,7 +11408,9 @@ index 083bd9a..9f851f0 100644
 +        library_ui_footer(menu, 2, b, t);
 +    } else {
 +        const lib_button_t b[] = { LIB_BTN_A, LIB_BTN_B };
-+        const char *t[] = { option_selected == OPT_FAVORITE ? "Change" : "Play", "Back" };
++        const char *t[] = { tab == TAB_A3D ? (a3d_selected == A3D_ENTRY ? "Create" : "Change")
++                          : option_selected == OPT_FAVORITE ? "Change"
++                          : option_selected == OPT_DELETE ? "Delete" : "Play", "Back" };
 +        library_ui_footer(menu, 2, b, t);
      }
  
@@ -11134,7 +11419,7 @@ index 083bd9a..9f851f0 100644
  }
  
  static void draw_progress (float progress) {
-@@ -250,7 +392,7 @@ static void draw_progress (float progress) {
+@@ -250,7 +593,7 @@ static void draw_progress (float progress) {
  
          ui_components_background_draw();
  
@@ -11143,7 +11428,18 @@ index 083bd9a..9f851f0 100644
  
          rdpq_detach_show();
      }
-@@ -324,6 +466,17 @@ static bool load_rom(menu_t* menu, path_t* rom_path) {
+@@ -273,6 +616,10 @@ static void load (menu_t *menu) {
+         return;
+     }
+ 
++    if (!menu->load.combined_disk_rom && dd_sig_boot_on(menu)) {
++        dd_write_header_to_cart();
++    }
++
+     bookkeeping_history_add(&menu->bookkeeping, menu->load.disk_slots.primary.disk_path, menu->load.rom_path, BOOKKEEPING_TYPE_DISK);
+     menu->next_mode = MENU_MODE_BOOT;
+ 
+@@ -324,6 +671,19 @@ static bool load_rom(menu_t* menu, path_t* rom_path) {
  }
  
  void view_load_disk_init (menu_t *menu) {
@@ -11153,15 +11449,17 @@ index 083bd9a..9f851f0 100644
 +    prompt_active = false;
 +    prompt_selected = 0;
 +    option_selected = OPT_PLAY;
++    a3d_selected = 0;
++    confirm_delete = false;
 +    flash_frames = 0;
 +    tab = TAB_OPTIONS;
-+    rows_focused = true;
++    rows_focused = false;
 +    info_selected = 0;
 +
      if (menu->load.disk_slots.primary.disk_path) {
          path_free(menu->load.disk_slots.primary.disk_path);
          menu->load.disk_slots.primary.disk_path = NULL;
-@@ -364,6 +517,9 @@ void view_load_disk_init (menu_t *menu) {
+@@ -364,6 +724,9 @@ void view_load_disk_init (menu_t *menu) {
          }
  
          menu->load.disk_slots.primary.disk_path = path_clone(items[item_id].primary_path);
@@ -11171,12 +11469,13 @@ index 083bd9a..9f851f0 100644
          if(!load_rom(menu, items[item_id].secondary_path)) {
              return;  // load_rom handles its own error messages
          }
-@@ -382,7 +538,48 @@ void view_load_disk_init (menu_t *menu) {
+@@ -382,7 +745,49 @@ void view_load_disk_init (menu_t *menu) {
      // Scan for swap disks in the same directory
      scan_for_swap_disks(menu);
  
 -    ui_components_context_menu_init(&options_context_menu);
 +    library_clean_title(disk_filename, disk_title, sizeof(disk_title));
++    dd_build_header(&menu->load.disk_slots.primary.disk_info);
 +
 +    // The Game Pak is the chosen cartridge, unless this is a saved ROM + disk pair.
 +    if (!from_pair) {

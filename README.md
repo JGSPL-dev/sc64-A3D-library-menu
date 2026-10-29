@@ -16,6 +16,7 @@ It is built on [N64FlashcartMenu](https://github.com/Polprzewodnikowy/N64Flashca
 
 | Folder | Contents |
 |---|---|
+| `CHANGES-1.5.1.md` | What's new in 1.5.1 |
 | `CHANGES-1.5.md` | What's new in 1.5 |
 | `CHANGES-1.4.md` | What's new in 1.4 |
 | `install/` | `sc64menu.n64` and `menu/library.ini`: everything that goes on the SD card |
@@ -50,6 +51,7 @@ The `examples/` folder has screenshots taken on an Analogue 3D (with version 1.3
 4. [Add cartridge labels](#add-cartridge-labels)
 5. [Analogue 3D display settings](#analogue-3d-display-settings)
    - [Give ROM hacks their own Analogue 3D settings](#give-rom-hacks-their-own-analogue-3d-settings)
+   - [Give 64DD disks their own Analogue 3D settings](#give-64dd-disks-their-own-analogue-3d-settings)
 6. [Controls](#controls)
 7. [Screens](#screens)
 8. [Settings files](#settings-files)
@@ -168,7 +170,7 @@ The menu draws a 640×480 picture designed to fill a 16:9 screen. Set these on t
 
 **These settings don't affect your games.** Each game in the Analogue 3D's library keeps its own display profile, so a game can still run in 4:3 with any filter you like while the menu fills the screen.
 
-> **Exception: 64DD games and ROM hacks.** Games the Analogue 3D doesn't recognise from its own library, such as 64DD disk images, ROM hacks and homebrew, have no profile of their own. They **inherit the SummerCart64's settings** (Stretch, Fill and Clean). For ROM hacks and homebrew, the menu can fix this: see [Give ROM hacks their own Analogue 3D settings](#give-rom-hacks-their-own-analogue-3d-settings).
+> **Exception: ROM hacks, homebrew and 64DD disks.** Games the Analogue 3D doesn't recognise from its own library have no profile of their own, and **inherit the SummerCart64's settings** (Stretch, Fill and Clean). The menu can fix this: see [Give ROM hacks their own Analogue 3D settings](#give-rom-hacks-their-own-analogue-3d-settings) and [Give 64DD disks their own Analogue 3D settings](#give-64dd-disks-their-own-analogue-3d-settings). Expansion disks played with their cartridge (such as F-Zero X + Expansion Kit) already use the cartridge's settings.
 
 ### Give ROM hacks their own Analogue 3D settings
 
@@ -182,6 +184,16 @@ The Analogue 3D keeps each game's settings in a folder on its SD card, `/Library
 **To use your own settings**, copy `settings.json` from any game folder on the Analogue 3D (one set up the way you like) into `/a3d/template/` on the SummerCart64's card. Every new entry then uses it, with the game's own cart colour. Without a template, each game first boots in Clean mode at 4:3 (Image fit: Original); change it to your preferred settings once on the Analogue 3D and it remembers them.
 
 An entry only needs creating once per game. A new version of a hack has a new signature, so it needs its own entry: Smash Remix 2.0 and 3.0 each need one, for example. **Labels for hacks:** the entry doesn't include label art. To show a label for a hack in 3DOS, make one yourself and add it to your Analogue 3D's own `labels.db` (`/Library/N64/Images/labels.db`) under the game's signature, for example with the community [labels.db editor](https://enoznal.com/3d/labels.html). Copy the updated `labels.db` to the SummerCart64 card as `/menu/labels.db` too, and the hack shows the same label in this menu.
+
+### Give 64DD disks their own Analogue 3D settings
+
+The Analogue 3D recognises a game from the first 8 KB of cartridge space, and a disk boot doesn't change that, so on its own every disk would count as "SummerCart64". **Signature Boot** fixes this: just before a stand-alone disk boots, the menu puts a small cartridge header carrying the disk's game code into the cartridge space (which a disk boot doesn't use). The Analogue 3D then sees each disk as a game of its own. Create an entry for the disk (below) and it gets its own settings and Memories.
+
+- Signature Boot is **on** for every disk that boots without a cartridge. To turn it off for one disk: **C▶ → Analogue 3D → Signature Boot**. Disks played with a Game Pak are never affected.
+- **C▶ → Analogue 3D → Create Analogue 3D Entry** writes an entry for the disk to `/a3d` on the SummerCart64's card, exactly like the ROM hack entries above. Copy `/a3d/Library` to the Analogue 3D's card in the same way, and the disk appears in the Analogue 3D's Library with its title, release year and grey cart, with its own settings. Without an entry it still shows as SummerCart64.
+- A disk's signature is the same every time. It is chosen so that it never matches a game in `labels.db`, the SummerCart64 itself or a blank cartridge.
+- Release years are filled in for the released 64DD disks (Mario Artist, SimCity 64, Doshin the Giant, Japan Pro Golf Tour 64, Randnet). Other disks have no year.
+- **Disks you made an entry for in the test builds:** to add the year, choose Create Analogue 3D Entry again and copy only the new **`library.json`** into the disk's folder on the Analogue 3D's card. Don't copy `settings.json`, or the disk's display settings go back to the defaults. Or open the existing `library.json` on a PC and add `"release_year": 1999,` (the disk's year) inside `"data"`.
 
 In 4:3 mode the menu still works, but everything looks narrow.
 
@@ -208,7 +220,7 @@ In 4:3 mode the menu still works, but everything looks narrow.
 | Button | Action |
 |---|---|
 | **A** on a disk | Boot it in one press. The disk decides how (below). |
-| **C▶** on a disk | **Disk Options**, two tabs. **Options**: Play Disk, Play with Game Pak and a Favorite switch. **Disk Info**: disk details, Game Pak and swap disks (up/down scroll). Left goes to the tabs, B goes back. Also on disks in History and Favorites. |
+| **C▶** on a disk | **Disk Options**, with three categories on the left. **Options**: Play Disk, Play with Game Pak, a Favorite switch and **Delete Disk** (A twice; keeps the save and the Game Pak). **Analogue 3D**: Signature Boot and Create Analogue 3D Entry. **Disk Info**: disk details, Game Pak and swap disks (up/down scroll). It opens on the categories: A or right enters one, B or left goes back to the categories, and B on the categories leaves. Also on disks in History and Favorites. |
 
 - **Stand-alone disks** (game codes starting with D, such as Mario Artist, SimCity 64 and Doshin the Giant) always boot on their own.
 - **Expansion disks** (F-Zero X Expansion Kit, Mario Party, Zelda, Pokémon Stadium 1 and 2 Japan, Dezaemon 3D) boot together with their cartridge, the **Game Pak**:
@@ -281,8 +293,8 @@ All are plain text files on the SD card and safe to edit on a PC.
 | File | Purpose |
 |---|---|
 | `/menu/library.ini` | Folder order and hidden folders (below) |
-| `/menu/label_overrides.ini` | Labels you picked with Choose Label, and cart colours you chose |
-| `/a3d/` | Analogue 3D entries made with Create Analogue 3D Entry, to copy to the Analogue 3D's card; `/a3d/template/settings.json` is your optional template |
+| `/menu/label_overrides.ini` | Labels you picked with Choose Label, cart colours you chose, and disks with Signature Boot turned off |
+| `/a3d/` | Analogue 3D entries made with Create Analogue 3D Entry (games and disks), to copy to the Analogue 3D's card; `/a3d/template/settings.json` is your optional template |
 | `/menu/labels.db` | Label art, copied from your Analogue 3D |
 | `/menu/config.ini` and the per-game `.ini` files | Stock N64FlashcartMenu settings, unchanged |
 
@@ -345,7 +357,7 @@ git apply --binary /path/to/source/sc64-library-source.patch
 
 # Toolchain: libdragon preview (see N64FlashcartMenu's README, or use its devcontainer/Docker image)
 export N64_INST=/path/to/libdragon-toolchain
-make MENU_VERSION='"0.3.5-library-1.5"'
+make MENU_VERSION='"0.3.5-library-1.5.1"'
 # Output: output/sc64menu.n64
 ```
 
