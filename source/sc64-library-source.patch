@@ -11,20 +11,21 @@ index 63aede6..4a04fdc 100644
 +/filesystem/*.font64
 +/filesystem/*.sprite
 diff --git a/Makefile b/Makefile
-index cea8e99..2e48034 100644
+index cea8e99..9b77989 100644
 --- a/Makefile
 +++ b/Makefile
-@@ -52,6 +52,9 @@ SRCS = \
+@@ -52,6 +52,10 @@ SRCS = \
  	menu/disk_info.c \
  	menu/fonts.c \
  	menu/hdmi.c \
 +	menu/library_config.c \
 +	menu/labels_db.c \
 +	menu/dd_pairing.c \
++	menu/cart_colours.c \
  	menu/id3_parser.c \
  	menu/jpeg_decoder.c \
  	menu/menu.c \
-@@ -67,6 +70,7 @@ SRCS = \
+@@ -67,6 +71,7 @@ SRCS = \
  	menu/ui_components/context_menu.c \
  	menu/ui_components/file_info.c \
  	menu/ui_components/file_list.c \
@@ -32,7 +33,7 @@ index cea8e99..2e48034 100644
  	menu/ui_components/tabs.c \
  	menu/usb_comm.c \
  	menu/views/browser.c \
-@@ -77,6 +81,10 @@ SRCS = \
+@@ -77,6 +82,10 @@ SRCS = \
  	menu/views/fault.c \
  	menu/views/file_info.c \
  	menu/views/history_favorites.c \
@@ -43,7 +44,7 @@ index cea8e99..2e48034 100644
  	menu/views/image_viewer.c \
  	menu/views/text_viewer.c \
  	menu/views/load_disk.c \
-@@ -96,7 +104,27 @@ SRCS = \
+@@ -96,7 +105,35 @@ SRCS = \
  	utils/utf_converter.c \
  
  FONTS = \
@@ -57,8 +58,16 @@ index cea8e99..2e48034 100644
 +	VT323-MonoN.ttf
 +
 +IMAGES = \
-+	lib-cart-sel.png \
-+	lib-cart-small.png \
++	lib-cart-grey.png \
++	lib-cart-black.png \
++	lib-cart-red.png \
++	lib-cart-green.png \
++	lib-cart-blue.png \
++	lib-cart-yellow.png \
++	lib-cart-gold.png \
++	lib-cart-silver.png \
++	lib-cart-purple.png \
++	lib-cart-pink.png \
 +	lib-disk-sel.png \
 +	lib-disk-small.png \
 +	lib-btn-a.png \
@@ -72,7 +81,7 @@ index cea8e99..2e48034 100644
  
  SOUNDS_WAV = \
  	cursorsound.wav \
-@@ -123,6 +151,14 @@ $(MINIZ_OBJS): N64_CFLAGS+=-Wno-unused-function -fcompare-debug-second
+@@ -123,6 +160,14 @@ $(MINIZ_OBJS): N64_CFLAGS+=-Wno-unused-function -fcompare-debug-second
  $(SPNG_OBJS): N64_CFLAGS+=-DSPNG_USE_MINIZ -fcompare-debug-second
  $(FILESYSTEM_DIR)/Firple-Bold.font64: MKFONT_FLAGS+=--compress 1 --outline 1 --size 15 --charset $(ASSETS_DIR)/fonts/charset.txt --ellipsis 2026,1
  $(FILESYSTEM_DIR)/%.wav64: AUDIOCONV_FLAGS=--wav-compress 1
@@ -3005,48 +3014,242 @@ YT-O_Zc9uH#7U%*7Pgg&ebxsLQ0Qyot-v9sr
 literal 0
 HcmV?d00001
 
-diff --git a/assets/images/lib-cart-sel.png b/assets/images/lib-cart-sel.png
+diff --git a/assets/images/lib-cart-black.png b/assets/images/lib-cart-black.png
 new file mode 100644
-index 0000000000000000000000000000000000000000..0b21117d16931da0ab90163f60e80a5174defb0b
+index 0000000000000000000000000000000000000000..21e356bb9ad80311422844d251c4c2cac69d6379
 GIT binary patch
-literal 820
-zcmeAS@N?(olHy`uVBq!ia0vp^1wfp{!3HEd{)OLWU|{;~>EaktG3V{wjd`mAWR8E_
-z-=^o+_OL8?)`SFh@wVIMEA$JN+Z~_#i^tA=`ERBl3@UFAJW^0m$>s63mWb_{yTf_$
-zB2h=yKKtLl`#K7~OkQjf>aW}PIO3ejdFfShPU~`Zudd=){c08a0l(GDlGqlV+2R~*
-zXzb0pCuD`Qw(z!q11dLOzn&cv|9_I(;=n5p6=$D+{^{R8MRW6GS<w?0+*--*F*`L;
-z;?&it-ySonPws3<+`%}b=A7SA8?FyAaZ<AB0VfKp_WpM2EB0BQ^o%W}bsPW7k00~b
-z&e;4V_`ch!BerbD!W*)7<ZgI0;nMB;KHod59HyVI7E94e2rbY$!1wZZ#VXdbO?NmW
-z%;JRJ-Z`-87JHQ1vgf?zN?Et9r`{Ce<IRnq-T#z(v(Aaw&4IV~ZCoRhUJzKYJIa1v
-zUCh;-EA!_4^IV=hwah5YZ=Sixef}kWHg~LKyZ`q(^fx>Z6tH1xa(DQ^!6C<ZP+6gZ
-zg@vAindi^z8_o3#mk!Z$KD^0W@8*RZGuPd_fA75|z;f^y-w~VsNos8u#ZE{4Klk(4
-zF2QN3Yx81~?%gX}ay2W|BxG8Sjoj&sC-u(W({_D1Cv>@xjV0tt#*_4YTxoGfzEpj0
-z)%|?z({qdFnEb?@>zsHO>#ln}&qiaK{`JzM2Df&8dpck6!BeI!I^JU4{+)|fy!rU&
-z$0ChMM;{q~U6g8lj+`J_DgQ=y*ZT7o-yW|zw|tY<{z(Cn3pn;?2fCHs=MU*`l%4sW
-zeUYurA3;IE^U_*!eAX(r-*x4dUl%vrd^6|0tj}eU*z3jfA6)pWZyJ03sL5HU@BUGL
-Z+2=+*VlIo8SOm-s44$rjF6*2UngH@mW)}be
+literal 853
+zcmeAS@N?(olHy`uVBq!ia0vp^IY6Am!3HF^=9ukeU|^Q<ba4!+nDh3oVelgdhNB;+
+zOPuU6&ImB9QR~jm%*pr@aQ()O3sE0to+;Ei#dB_vTKJtKojy#QkwWwK)k|JWeVU$-
+zC?NC3bNclCleS&ou<qoObD7n=3=g*LWe8n+?0?p`zdoy?E~no+x9-jEgCV)$6T;Me
+zCtAtMJ2X8l$}Fy$Wi^+Nf&KJS#su;8*IZoF0|mZJP~n_6KfQF>^0!Y^8XjBBI6JRM
+ze?4==PxjMyuD+Gh;b9MZ*14!!`}3M@oI25=doDGvwo$vuq}{Z0=g-`ydTA!R&i$SH
+z$|;P|Tbp}(;RUnV?YRfT8gqbli*C|-V3v?M`vI5!n$4%Rxwq*%%wEM6!LGBGL+^XS
+zUEQBn8+0!1W6IUyp3$Dp%yYv1chP}s#mj9rh;)grTp^;*ozAVJ%l(|;+x#c%npz(|
+zxb3*sOe$7gb5`z#EkJJ<wjW+C|F?@J`0&HfN9UgF=dO32nqyagarM_6&K{k{iK+&h
+zSlp%^I3Xkv$)xO^kU~$v_g}v7w70j<XD|EuRV-`wCVA=q-@dWE|M>CYX9s~VcI<oh
+z?|=O8Vg6(8kOMbwTH2gvW{^nUS7Wt(y6lX-3-0p^wlU8w<P~pYK2jJ|vAcSwJEPBX
+z!I<l!QO&In87{w+KT;TDk@j|(a$mAUvH*+i>+axq?k2e&!|aU>Lc5RLe8ai#{o&HB
+z3-5%kdwuBp-=O;{imaQw8eK2i{`%V;yZ-6%YwzQy+*5zSLq@QK{%{ML4K&GZ@#`g>
+zud`M!yO(pDLt;VwrVUeXzm?m*mo0Qt-gk+26*aH7>=g)I_wmQIj|>l9yx=${QBzYR
+z!WX9_wp9I}{kLfQl(lcamNG8*Q@P>gHd_mehWEc28tPvN$((q4d=e8dyD)gV`njxg
+HN@xNAlfi!$
 
 literal 0
 HcmV?d00001
 
-diff --git a/assets/images/lib-cart-small.png b/assets/images/lib-cart-small.png
+diff --git a/assets/images/lib-cart-blue.png b/assets/images/lib-cart-blue.png
 new file mode 100644
-index 0000000000000000000000000000000000000000..a98c55dfaa2d54b2c843bd9aedcd9e13f1275197
+index 0000000000000000000000000000000000000000..bad2e71aced4c85310ee10bf5658756abca7b12b
 GIT binary patch
-literal 820
-zcmeAS@N?(olHy`uVBq!ia0vp^1wfp{!3HEd{)OLWU|{;~>EaktG3V`F`@BaEGHnm#
-zPh_r`(Cy3Km$ddItC=~6c!$Nwut-hUC2uV{kFuU&)JfHE(2YFBwezGHhm?!fwho21
-z2lfre54-Q%ZgNbn!sLO*fh+6Q@7I6oQgpZRoubI9>$|Vpwv?9MWllIAdfAXUFzwd9
-zmosL1F`gIAx*u|A8rKY#>dK$m)2H8Gaxr5{X~l_WpLg!r_iyrQ?d-j4eF7feU|w=|
-zlSbE*M~8lVYM6Y|Ws$}$1|Pfh<4JNX6<Yee^UQUgTHJjXt9jgVNwOg~^DC#*PE{2@
-zBDJ6E{JpY$qE;dQ!85FDr1GTK*ev<7>HNmdXwet1D$h6ju&&|qW4~cnE9bv;LFEK%
-z#?Z&A7yWp3*6RdJow3gPMrTIO`z4!1Wu&6QX7@jp4HkW}?q){L{S{j0rRRy>S!X8~
-zUmtlj$7J5TI`8F=HLN9rC%@)X;c!|h%)j05_``bT3(5)=EG+#E4+I5ln3~)jK5%fz
-zF&?C+;IYr2<!AaWf6Z$(ePQBH)#*7IX0wy--1`@i&vCdQnLTNqo2T&UtnSA(f6o0p
-zwo9<@@tXXY#Cvy2mR!vWH3^xPV<UGuL!`#Zd)lrq=eRC^ZezJ}B}3%NKCWkRM@n{=
-zFV+2gtm}E@VW<4W)^$$0t9AFim$%gj)4Bis=%!n(-=5AFd?3nHBI7RBZQl7f;%mje
-znnIb=Ngt<GUECy_PDaq|xx)W#+TGvjGQUr+I=6hY*8WKWk_$NYXD?h-CD5|#_yIm0
-z4ktr7`TEX|j@Nu9{Oxap*O%)nb#~9VnKP}D{r0w_CT9<+-zfiIeAdKwWA5%Ne<z3i
-aXIwe!vb(8bh$JvKFnGH9xvX<aXaWEshhi}R
+literal 867
+zcmeAS@N?(olHy`uVBq!ia0vp^IY6Am!3HF^=9ukeU|`nrba4!+nDh4Tc`s>4hT|Xa
+zuUl;PQQkCULkGvBr5)`~`EMOxoJ{|~S~J0}S^q-%2bCuQ`K@wJFI`&_yty?u9+A5I
+zYSznzSMyTLXFhnBQ}^q)%;Zv|-S>TBQqHnT2)@4kd)o`kFP}fYeZAm?C4)o67nT%@
+zd-qKj@0-;2wEF4OZ%N;E&usX_HS^_y>k}89;}l>q=$A{kwCR0uo&P}8j7v5RIgjsV
+zF4z)!CGUy=3)@rm^Y4so)_#6JKOwheWoz$|=kJ9s@cd?8{2}oAs&He;^t@E#$%SpA
+z_HBoc74wC;tk_~OpZ{LUSHa0U{Oz3M<ioEQFgO3?DYXu0OBDJlxj%h=ElUaSbg47$
+z8uuGxRL>laKH&IJsQIa+wp?Zi6YnMcgt(8_wtvqJGAXWJ91|z|-+80UtLNA3A{6Eq
+zc&<KsWc~^7)p2{p7fw3z?ew#qw;J|8Jal#K-9!GDkDh&XZ5^-o=WN&W&N5S<UH@{u
+z%8bj+?cfOw2}xGv#R(}QJv~hm0}YJmD0pm6?eB)w_t(y5@7lGuRi(Q=_s@+dGH1R#
+z`aGNcR`0E|Y{|lxXVm>V^qYm%;`cAPaPf2ohTwHy?vyNlUj6#9{~Wpf&a30Dc70wG
+zx?YLH_f?_)-l@mmeA2%0Zt0@RE33i{cmEM`w3xTc_x|KQ1(|lu@C$iYjONezl4YJ{
+z@YL&mM8o08M^_H9E&8mM^WA9kNl*RTdtFNI`RsL!ndA5Rqy_8j=$l7gessK7T)Dxo
+zpMTDI;Vp;A2(2J}m9v-jbNj66zpmA_zB_j>3-cF$u}Ds9^>)|ujxwcwe1dXs-?F&+
+zyWEih(rgTRb#;xJp#rmlUL6zO?0t^e|C|ov!NaxkK4)~8uKf-FwjlX-uT_VYFT(-(
+YK>Pcxn(A&6z|6zo>FVdQ&MBb@0FzydfdBvi
+
+literal 0
+HcmV?d00001
+
+diff --git a/assets/images/lib-cart-gold.png b/assets/images/lib-cart-gold.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..5f6367e4f75627e19d26d142df05acb41eee2356
+GIT binary patch
+literal 873
+zcmeAS@N?(olHy`uVBq!ia0vp^IY6Am!3HF^=9ukeU|=@zba4!+nDh3oqxbCuhGQR>
+z8*X)W?Ve^SIeWSz|KaAGGiN7@AIyKa?}UK;(RIIc+4fcxmHC{SAj=h((jK&8Y1ibd
+zWheP&>rGu!+kJAj-LF4=zO|p#{_ivO$TgA>WVe>CyH)(+`P<+AGq*fvVDP&oJmFzP
+z{negdUQ*NEPMv<^+`H%*iK?PT*BsX?n?~hY__1xi{J4<Me{p3U>-o=tC!RALk$&&T
+z?7DW5*H+H*GY2nq|A}o|URrX;>HGHfr;l=8eA~@Z(*CzGuwu3L)a;EtoA+%JIBjv5
+zYu@3+$CB*c${`^$_~rK>{VFD0<zwa?H$VJx0dw<Bo>J?8o<ygwlKY>}$Yn9%6_-5Y
+zrg6K`r}fO?r~{4<otjl8wIwn`n0PPgCj@=uD>M7EA>-X!b=6JffB26It(+fy`~maH
+z7VhZWyaMMSucx>6a)_!G#MDh%&HF?8+|9djzJHBk&%DW7|I4qi(CTev$HGUCw)~4a
+z?{@HnhJ+-m^5TRPk)EEWiGc=2TyFFf+!4QT{-ZaKUOj8vl9#Xeuqj^J-q@7y``Obw
+zXR~WveRfuOncAj`?I9cN92xE8O$!QdGBSvK+Bt9byDv5QwFQUoUAOXjIxB2W>e3?K
+zn}+J2_PF0WmHhUrja97wMIEiF*%8&I{cEIaGcSH$r2N`S<4N&~kl7pk{i;G&`2vmE
+zw~?WF^^vEKbfngrS;gvaJL$RJ@4EBit9^SMV<zamJ}JQ(9Upn%UZU;Goi-8G?WK=j
+zv#cc}fM%ZHpLFcyeRiK3>EB-6Yx!?Sak9Obuk+|pi2u3E^O_}A&6{)h=AB#Tm)Hs#
+zZr-_dej(!n_rL1T(u!tOi2UXI`RC-4j|a{_Q-5f||Go6Xmyawq=l_I%TTop6b9MLS
+d&1MV__?Kuu60}vb{|L-N44$rjF6*2UngFfWj2Qp`
+
+literal 0
+HcmV?d00001
+
+diff --git a/assets/images/lib-cart-green.png b/assets/images/lib-cart-green.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..01c9e8728927141fbf3e063014d106da52081ad0
+GIT binary patch
+literal 887
+zcmeAS@N?(olHy`uVBq!ia0vp^IY6Am!3HF^=9ukeU|_cMba4!+nDh3oq2KKQhGQSk
+z_szc05Zvl@!dZ0Xt0s|^%EIOu`Uegjk+g6*f1$IL`v9+%p_1apkf{Of9Gn4$EJ8xN
+zCr|8rbEGf+P0feD?$1AdI>E25ALyZ@;~8IH!@oN2@D{)C{cBcTXJ9D1${p}i>+kxs
+zo9CD8nOgfy_syv|X`g#yteGX3I8H`pGbDCg{CnZa7Zc0Xr3W?{?2=|M=nl_Vv}N;(
+zo0-ZyOg4Z1hNo2Bx>x^;;q<nP`*(Qm*~5|WPX0_$`1XtqVb_g~&cBU3f5K++S*Gsk
+z;`*N-*z|iYJ8&tXuJ(846TP(G75X2`wYX-o>u71;Ipg>_NA4NxY!)Nd$=f|o>}mMi
+z;Ci;nd+&x5divToHZh#l(oYcFu)<`=k!IKJPc9#L<Z+tIWVJ<t&^%591<AKZ8H3Ny
+zopeA+BW%eQr9BpNG&iiUn8P}wev&okwO3W^`LZ^>eZ1Ge$(UEHbXR@K&1iP({9mG+
+z%eL{AIsM-FJbW+T)Q!jItq*^FQ%E9`N!dFgg|kPeaiXfhCKk782Tssa@Z78CrB`Ns
+zea_tdtBTt+{$qcy{P*^PcmHGT<ul4|oo8-3u72n5KCRkDu87~C1iziKW;k#{e$S7R
+zJas#Ry2jl*8^f+&mJBaiyRN-JX34#Gevbkf{{2*4GfQ`iP<E;9kLS}ljyt}Zv2u1_
+zflR^^{tIum^y>TVU2`)t`3e8BBu2@y&cEH#7J1BJzS5^$Q?KS&<SAb^_w;C7<CCyG
+z-FC-p>F&7Gv(MhWb7GJG1xYf(M*C~;61Cm7uM>f>uk(1<s#R;uZ%<=ldof?fCv|;A
+z-qq{?$>@(UH`I5xhh60kylHjQc8d(diuLA(yQCE)`hwZ{*S|CNx7qWK`Qhri6SHnz
+rKFgetYR{i`cU#$Bw)C}(3_tk8{p611n{ylhW+(<vS3j3^P6<r_&)$c$
+
+literal 0
+HcmV?d00001
+
+diff --git a/assets/images/lib-cart-grey.png b/assets/images/lib-cart-grey.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..0abb58b1289a4ed422f26d556166cce2a2779c61
+GIT binary patch
+literal 858
+zcmeAS@N?(olHy`uVBq!ia0vp^IY6Am!3HF^=9ukeU|?4Cba4!+nDh3oz5k;GhT|XQ
+zeRt2O_{dZG>3r{wI}FX@`O0cX!XF&q-g)Hv;Ro6ZzC5>Q7Hc$juPO3#vME;6Q7t$;
+zS7w5kT+;6;^Z)HrUd!+Q`{Tj35RC+1uEVnn?-fUcEd8`|!gm>l11GDQvbL`Ie{Icg
+zuPD>o+WMQ-tFsMOPZLd9)x1yP>+f2NzUH@Y-<q^9fBEsF;NpuMN0S5{c2&H~uCvG#
+zE!|yS5c~aZ)7|_3j}%zUX*fH7`E`bMJlpv6OC2xxq|S+YYcjPkEcchpx~_DdY3w0F
+zXMX<Nz9lXxssE(flhc)^t<hX*!dY?}t}||k_1G7mF=Oz3D0DE#;U=4rZkpURhUo{7
+zHl=o&_HNO0I32|@Lo`m}UeDtTcYe+_sx14{p5z#H<&I%bW6py|VY99GDz0u?@KbHU
+zqght#3a72+{lWd*L`r;T{4(v$QoY?9gSBLz+484GtSnhk{`#hnL?n~4cR~thk51!6
+zRfA0|Zqp8&pr_!wuV49XZ2!)(nQ;Aj^ok$L?9J-3Un}2PyjXuS`>nSHn+`vF#x5gY
+zztzr>H72(9_~+003=Qw!FNj&^v+Zn6-rp~6VXuW8FI?%`93x=zurlsZrT-tT{;aPo
+zfg+q|lN>L&Y^`EC|5@mJWW~jYm2x%p>~G6v{CaXF=WQ9s{riy}tP(M*(@u+isp9Wg
+zq_Oqn%A1QcoYsFg_^hs}8GCJVDofbvxr?suI#Z?hep}e<OFyg}waEylut&X1GQYiN
+zo4m32`6=ya^V?C3%wPP)GM|=MZLd7<D0%JWokJ_HpXaLdcbOTwe!gf7!;7-_0Xn~K
+z+_>R!=jVe5lRqB#{hPgD&i88D&AWHEU(86^^M6yZwFJ+F_um;9>KW$PKJzMc&6y0$
+OGYp=telF{r5}E+T-iIv!
+
+literal 0
+HcmV?d00001
+
+diff --git a/assets/images/lib-cart-pink.png b/assets/images/lib-cart-pink.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..2e7e94d8056001d97e812e5a8d6e04f0084f0d02
+GIT binary patch
+literal 883
+zcmeAS@N?(olHy`uVBq!ia0vp^IY6Am!3HF^=9ukeU|_cLba4!+nDh2-toQ8zhGQR>
+zXFiL&bLyI<Y_UOr#O@UeZ`@iqcLz)Sa4b_iWOr2H$omcY0Rmt0E;Lpsi@Z51al<fR
+z=B3ibv#VeJ+SGk^ovvq9*GW(L+JDo1ef&Osz7mi$`9Q;#{hRLfRP#9At^cSa_+5hG
+zKxZ|>s{L#JU*q}Z^UD0TvHqsHbIoVeb#obA>7Az}8-A)lhF$r3e%sE<Szh<|Ex4GG
+zU^10WKyP04H2H6{U5{Q;)Kk67&He4+W%obpu16)@eg0CXp|+X#P;{)>eC|~1?#sms
+zbC%z~bv|)_#j%7!ho1*+>c1MT*)DNDc@t-4Rh;j`s-~MQuh_T*k8N&vTQ0Mi*CE&<
+z-atBFTcgisiFVTiaRu`d0+Y5X^Ku2OZ(>+{=yrT$e$~RAcePzNmH%l^a^za|T4I)i
+zNkQD^v$^pCp*L&Z#W+-6EsHs;kuLo~{M^l$xbDA3u`{>s+;gqO=<(#jerL&PlJl=D
+z|C+<uqtiH1)nF5g+q45Ggd`%Fl)V#D=qdR9>~5P=_qErGKdRc(`f1(Y?8ld{2Nle>
+znUlA7L#)o0FppTtW0&3gbNl@nEB=<TPo1yM(6BK?%2;^jwM~8R*XGA>*tokj$8Nb~
+z`pz7?_JvDcSKq6Zf4b4Yv^#6Bnn`!+XG<NQvq>5+|9i|i(A~FiNjFgQ?W0aFnuF)&
+zigQbNFJ<1y(7gJ{%ub#@t<;d$TQ9IJw_1HI+hWxe>whXgm!7WL)N?>=`E#HxqF*EQ
+za-?@hAG^*uE0K&aYRYfoURiHG!zA~O_PU(AIoYf{7wjWjrUqNw=&t5Dwc*e~xj8?t
+zE_J!X9GG@?y`E|eLq)vRkr%zu68mbdmOnjd{rH&lJc*s`$9L|yZp@!|-*xdtgSh?I
+lciR5^%6vTDo|)kvgYdtnb95g+j|OHY22WQ%mvv4FO#nLxjQRio
+
+literal 0
+HcmV?d00001
+
+diff --git a/assets/images/lib-cart-purple.png b/assets/images/lib-cart-purple.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..4a9a7d28f3d6086ca2432550fda31967e3c24521
+GIT binary patch
+literal 875
+zcmeAS@N?(olHy`uVBq!ia0vp^IY6Am!3HF^=9ukeU|=@#ba4!+nDh4TeXrXA497pl
+zU&^_;WwBWMXZ{{eqmNEEriwS^KVasWe<*tXf!iC~1>_SpunSZ@JSy>KQ3*$%<LVP$
+zx|{Rv-bxdntv6N0*TC|nfBpQ^%jV5_ayz*B%CSQ;Zrr=`{nI?>Ddz9vqASlcGQ8QN
+zu5ePK{%X%}FRxQyPMyw4FW2=6ifr{My|CJ2?mJ7Jh#3XmnSB0_H{EVy=b!veq@m>T
+z-K+&0LPPSy5^uAfnHqmDts+W&?Rg2FUlB9nIPcWWZt%M#FVVhzSJdK3rz}o?e!a41
+z@|6EFYQ5st5poL;9oqB%gW1~cGY%vhNq%~@=NPZK(TtM;=FCea)B=wDa6X=+lyIkD
+z;X$7kBUz1g4V4ny7Fsb08+4L?D))LX2wcRJCYoPee4o4P*`1mowd&*l19T=Xx?{n{
+ze?l$hLRRq~=}ke|A@5vPDC~RuX;Vz@f%^sDt{uyJH~pp1`D@44rJtW7_IY0W5tHDk
+zEAg*yYDh@3Dlbk*5$Wk^niyzc#O3C8@B}>tpTFMj|KsE9-(Q(4@7{B2`nlii-^au1
+z1@r7<_tq`Aw<ga1V5!=Nq-RrK{^V@XPnW;=HkOH@E3fj!GHd7i(eLjUlvH&@EnXy=
+z9<esi@nD(L`RW&IZKkDNzaalb<m`f|#Z60Znu@&n5dFv{u0$k<-F16U)#h2ho}@(V
+zjdZ=J>wb(WDMnS#XZ?dkx1H)Qc;^-wt+9XcaM5k9y^eF{>%BgCgln74{=UVR53hM%
+zlrKA1?$|!R3tVJ`SLZ*07_Wb|2aXtTT)$_=uMKM_CN%szsigZY^0&o%OAnv)x5+oE
+z*{#Fw2~Vu}##g4p&T!6JeMZUYiU&4awMCUhdfyHNAGM6wv44H@r6a}_oOP-FR@?Vi
+h+h2USje((_VU5Q94JA8w%mij422WQ%mvv4FO#o4llO+HE
+
+literal 0
+HcmV?d00001
+
+diff --git a/assets/images/lib-cart-red.png b/assets/images/lib-cart-red.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..b846af4d073822fcc342e7bd7bf89abda14f10e6
+GIT binary patch
+literal 858
+zcmeAS@N?(olHy`uVBq!ia0vp^IY6Am!3HF^=9ukeU|?4Cba4!+nDh4TLGRlE497pl
+zUuwTHCGAD7IDZ_QD_gVNk}nVD?`!7aZ#}4SNKeit$6C{S<Frqg-fVEaG|8m1R_$-;
+z{`ZC}&!^k%Gx5l=dE+@>UvJX3=Ns0pet9LknvdbZc3Z~K^~dV7ztyT<UHfwC_q6+O
+zE+oAA7B<0;-FKp2&p|EE57vFLeEyer`?2qP{_tWHL*B<SsTCQbyiE*+lOFv3{8{ht
+z<!=vvNXVW){I+J^?s{>D;P2eu9)_6nIjcX8ai2K3@YOWiw$hJU&085mS(5kF6c%-D
+zTpalB{1ugys+iS>rtW)T8nE70HIHd$)5_awDX|AO1wYz$>H$~zyG@H$HNE8yh%99+
+zXY|%?I(>J?>zDb`5n`F~ji*jAJ$ty5f%((LYi2vD=AUBrUKla4%j@H&f^`QjZ7Ps^
+z@UJOJI7g<9oqg*}+1^PaXH6q+T`hU_^ZVh%*VA9FiUQJ)?(2%>o_7v?leh6g{Og-S
+z5|K>G-U%t3JvxmORSh<=xJ^57f}VoUlGnFyxLkSj!nMb`A$2$Vd;1?rJiC4Q^6555
+zfjxU3X!d<H-Ry6AeR&-J-umtr2XAfle;!x;&8zHq>i+&hiL9fhcPw}kColQ1L)=d1
+zd74@CN1KJFH!OGxjb|TJJ38NI|JOx_)i~wW997_$<L|fDoP)_GVz(&wih`*X*7F}<
+zk&t-5K>p2ztYe=GvV4}Rd%oB-Z;e;N^}v?Xb^q5s|8&3X=KJt{eiyjN2%^vm<&~$`
+zE#@dQxm9;qw$k@*&TS5f1@)T>rq<tkyUmt8bmQkd@qaf{7DZQiTFv&cVP<&W-}fOy
+zS8R3Y!|r;W=~LPN?TkqZE$aWF_&s}POZ?+&-!>)R{#rX{#{Tzl^$a#%LSH9Td?^Fw
+O83s>RKbLh*2~7Y+uZ|@E
+
+literal 0
+HcmV?d00001
+
+diff --git a/assets/images/lib-cart-silver.png b/assets/images/lib-cart-silver.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..996dc544b4821fec9062ad26ac771ba2be17fc1f
+GIT binary patch
+literal 870
+zcmeAS@N?(olHy`uVBq!ia0vp^IY6Am!3HF^=9ukeU|`nuba4!+nDh4TMt|WzhT|XO
+z_4^w=1gg53{0^`=Di=EBN~y8`=QR`h$FBa^?a;CP2M=6{;WCow5xUX9dtoUnXIrE9
+z>jhV~?aYope0TT12j69@kH6mi`@^ZFmbYYnE$KbGVBS|5tFQlJ4X1yVVK{KQifPsM
+zIsdPH`R(<}^t!hGR`uQa279N8r7UW`rxdzcv|?WS#EBPG+Lyn4^hjoF6z|VH{0fma
+z#na{cqFvLMs~a4%iP$jT{+vKtBJ-NRHg{P!q;IIJSgFmv)a96_h`6xi^6RtCC$6u!
+zmJsQ1^kB`eABrod&p44>#93J#m-}#6)6SMGb}s?7O?;2H%WUR$h~5!lARe%;F{gV*
+zyYYd%f{6*4Nv6tQxdXOaF)nM}zESeZ;tM{%{Z`so|8w4`P`c`^#487@g22^hP4Ycf
+z7X|DR4+u1s4YxgemF-XK=dkP7jQ9J5m#tm5_WItFD_^d8zEEfOoLSd)f6d|S(P^Bh
+zYOsmLZQ6koLK2Zo%H9bn^c4L3_qLv1eXN<>iC3?6LrTudOWXgcka+g9`{yxc_TSaL
+zvU0q<51;<gel8qx;QC$tAGM{d3@3iurKLTWx*cV=eP89_bI*-VIeKcJD}1_u#W*49
+zeD#~~N}WA=3OxBO&o&eV96B_6yFr>l+5A3n*<(Bk?|)m|xbIz4v}$YfU)v|O`<2BK
+z3a45aTeoK|Z8F&7nFEwC*yFf0DD&rJk?DG`Pi|t;77^dLdGFM3F>*Q9x1+CJ=Zs1u
+zBZQLjReU$qo6oosYZD%}bJxvloDvJ_H+g8i|M9}$wWY@CzJ9)kYjyOWZkpGzDLb`N
+zGo9hVn=dSjE9IM;n>Skb``c`mtH`Ngn)kh6efm5bS?9H3oA2$vy>surea9-dGBNyM
+Z{`=+WhQ6|nJHY(I;OXk;vd$@?2>{E2gjfIo
+
+literal 0
+HcmV?d00001
+
+diff --git a/assets/images/lib-cart-yellow.png b/assets/images/lib-cart-yellow.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..f69e9cf59daf78b503b207dca301c5644df49ab3
+GIT binary patch
+literal 867
+zcmeAS@N?(olHy`uVBq!ia0vp^IY6Am!3HF^=9ukeU|`nrba4!+nDh4T*(|9*hNB-J
+zr)*iWapEG?#!EpPQbe81mI`n=%}NccY|;58Q#;9~X|+zS1BcT~H>YsMg#uihp{F7)
+z2W<5d&s=kBW?|czcK7r3D-VA?_xI^6MIVz^$(5D6GSzL_*K_6DEuS=xnL)zS-+@*8
+z+x%IP_dOlEtDn1mOZv<vyk&)gv+NhXm#eO}Co=fU%}(U=zr6i@Ef3p)sDI!796qx9
+zde^SEi;f-DUvl=!p{ClOw_Mlf^B+{Z{?e|YF}y_V-m6oh+EWVoz7;L(5#Dmql&9;t
+zv<|0+`Hb@S`iH8z3vHHLD89dTRsT-N28)GijZQ6vXOjPHEbe2zpg%`DLMEV)`RCb0
+zxs8l|&BZL;LfImjVGYZkvPy`?eJ;6N=47nS-}U6`NB%C>ldC(6H#BBEm{T^}@|R1<
+zRPAdq4wj}xab;6>^X_Oh_Ur5Fj9;c*KUYRHH#s}m@@1vQ{M=lf*XzILaQ5glPE<A6
+z#NsyXzzHFVNG4_PgcN!TZvM5hdD_?N9}YqB`3vVr|Gn{}CXX}iWoX$ChqZOKHVWS}
+zIP>Gv|4Tc#-f!=hjj+!%zgTtf$hmK)KJ46heyx1%qaC;0b|z&WKN_<$NpZ5@&UL$A
+zhgZIt9(M8VO{eaSMMn?SWs1(+^4tASbzDixCCxSBK385{U+C}G8@@U|d2d2h5~JNZ
+zq4I6v1vlR;zJ2+-piAiX^v9cS%Kx7FWSZXVlb=}2HcUTUxK;LRjM%ovS+~EJHkFYR
+zO4p@555IZOt5#e)KPJZf_Aw^57xQ%vowBgr?^(rnDn0$Vxj`Af^u6zFt7m3@-!RdL
+zaY5n5qfz%<zAgN1dgAnR$@|RW^KBb89++;dKQGNd;)i|Rty^Vvd<9ouF*E#Q5L0-}
+VUa;F<37B~pJYD@<);T3K0RRF)e}Vu2
 
 literal 0
 HcmV?d00001
@@ -3218,10 +3421,10 @@ HcmV?d00001
 
 diff --git a/docs/LIBRARY.md b/docs/LIBRARY.md
 new file mode 100644
-index 0000000..2319943
+index 0000000..cef6844
 --- /dev/null
 +++ b/docs/LIBRARY.md
-@@ -0,0 +1,348 @@
+@@ -0,0 +1,367 @@
 +# SC64 A3D Library Menu
 +
 +A 3DOS-style menu for the **SummerCart64**, designed for the **Analogue 3D**.
@@ -3240,6 +3443,7 @@ index 0000000..2319943
 +
 +| Folder | Contents |
 +|---|---|
++| `CHANGES-1.5.md` | What's new in 1.5 |
 +| `CHANGES-1.4.md` | What's new in 1.4 |
 +| `install/` | `sc64menu.n64` and `menu/library.ini`: everything that goes on the SD card |
 +| `source/` | Complete source (patch and git bundle) and how to use it |
@@ -3249,7 +3453,7 @@ index 0000000..2319943
 +
 +## Screenshots
 +
-+The `examples/` folder has screenshots taken on an Analogue 3D (with version 1.3, before the 1.4 label window and 64DD changes), rescaled to 16:9 as they appear on the TV:
++The `examples/` folder has screenshots taken on an Analogue 3D (with version 1.3, before the 1.4 label window, 64DD changes and 1.5 cart colours), rescaled to 16:9 as they appear on the TV:
 +
 +| File | Screen |
 +|---|---|
@@ -3272,6 +3476,7 @@ index 0000000..2319943
 +3. [Set up your SD card](#set-up-your-sd-card)
 +4. [Add cartridge labels](#add-cartridge-labels)
 +5. [Analogue 3D display settings](#analogue-3d-display-settings)
++   - [Give ROM hacks their own Analogue 3D settings](#give-rom-hacks-their-own-analogue-3d-settings)
 +6. [Controls](#controls)
 +7. [Screens](#screens)
 +8. [Settings files](#settings-files)
@@ -3356,7 +3561,8 @@ index 0000000..2319943
 +How labels are matched:
 +
 +- Each ROM is matched by a checksum of its first 8 KB, the same method the Analogue 3D uses. `.z64`, `.v64` and `.n64` byte orders all work.
-+- Labels fill the cart's label window, which has an arched top and a thin medium grey outline.
++- Labels are scaled once, when they load, to their true shape (56×86 on screen), and fill the cart's label window exactly. The window has an arched top and a thin outline.
++- **Cart colours:** each game's cart starts in its original release colour (for example gold Majora's Mask, yellow Donkey Kong 64, blue Tony Hawk's Pro Skater). Colours follow the region: most coloured carts were North American; PAL and Australian copies are coloured only where those releases were. Japanese carts are grey. Change a game's colour with C▶ → Customization → **Cart Colour**.
 +- A game with no match shows a **blank grey cartridge**.
 +- **Choose your own label:** on a game, press **C▶** and go to Customization → Choose Label. Your choices are saved in `/menu/label_overrides.ini`.
 +
@@ -3389,7 +3595,20 @@ index 0000000..2319943
 +
 +**These settings don't affect your games.** Each game in the Analogue 3D's library keeps its own display profile, so a game can still run in 4:3 with any filter you like while the menu fills the screen.
 +
-+> **Exception: 64DD games and ROM hacks.** Games the Analogue 3D doesn't recognise from its own library, such as 64DD disk images, ROM hacks and homebrew, have no profile of their own. They **inherit the SummerCart64's settings** (Stretch, Fill and Clean). After one of these boots, open the Analogue 3D's menu and change the display settings as you need them, for example back to 4:3 or with your preferred filter.
++> **Exception: 64DD games and ROM hacks.** Games the Analogue 3D doesn't recognise from its own library, such as 64DD disk images, ROM hacks and homebrew, have no profile of their own. They **inherit the SummerCart64's settings** (Stretch, Fill and Clean). For ROM hacks and homebrew, the menu can fix this: see [Give ROM hacks their own Analogue 3D settings](#give-rom-hacks-their-own-analogue-3d-settings).
++
++### Give ROM hacks their own Analogue 3D settings
++
++The Analogue 3D keeps each game's settings in a folder on its SD card, `/Library/N64/Games/<title> <signature>/`. The signature is a checksum of the ROM's first 8 KB. It makes these folders itself for games it recognises, but not for ROM hacks, so they fall back to the SummerCart64's settings. The menu can make the folder for you:
++
++1. On the game, press **C▶ → ROM Info**. At the bottom, **Signature** shows its code.
++2. Scroll to the very bottom of ROM Info and choose **Create Analogue 3D Entry** (A). The menu writes `/a3d/Library/N64/Games/<title> <signature>/` on the **SummerCart64's** card, with `library.json` (title, players, accessories, region, cart colour) and `settings.json` (display and hardware settings).
++3. Make entries for as many games as you like, then copy the **`Library`** folder from `/a3d` on the SummerCart64's card to the root of the **Analogue 3D's** card, merging it with the `Library` folder already there.
++4. Boot the game from the menu as normal. It now uses its own settings, which you can change on the Analogue 3D; they're remembered, and the game appears in the Analogue 3D's Library.
++
++**To use your own settings**, copy `settings.json` from any game folder on the Analogue 3D (one set up the way you like) into `/a3d/template/` on the SummerCart64's card. Every new entry then uses it, with the game's own cart colour. Without a template, each game first boots in Clean mode at 4:3 (Image fit: Original); change it to your preferred settings once on the Analogue 3D and it remembers them.
++
++An entry only needs creating once per game. A new version of a hack has a new signature, so it needs its own entry: Smash Remix 2.0 and 3.0 each need one, for example. **Labels for hacks:** the entry doesn't include label art. To show a label for a hack in 3DOS, make one yourself and add it to your Analogue 3D's own `labels.db` (`/Library/N64/Images/labels.db`) under the game's signature, for example with the community [labels.db editor](https://enoznal.com/3d/labels.html). Copy the updated `labels.db` to the SummerCart64 card as `/menu/labels.db` too, and the hack shows the same label in this menu.
 +
 +In 4:3 mode the menu still works, but everything looks narrow.
 +
@@ -3442,8 +3661,8 @@ index 0000000..2319943
 +Configure has four categories:
 +- **Hardware:** CIC, save type, TV type, Clear RAM, and **Use as 64DD Game Pak** on expandable cartridges
 +- **Cheats:** Use Cheats, the Datel code editor, and Show Cheat Files (applies to all games)
-+- **Customization:** Choose Label, Favorite, Reset Label, and **Delete Game** (press A twice to confirm; removes the game file and its History/Favorites entries; saves are kept)
-+- **ROM Info:** details from the ROM header
++- **Customization:** Choose Label, **Cart Colour** (Original or any colour), Favorite, Reset Label, and **Delete Game** (press A twice to confirm; removes the game file and its History/Favorites entries; saves are kept)
++- **ROM Info:** details from the ROM header, the Analogue 3D **Signature**, and **Create Analogue 3D Entry**
 +
 +Settings are saved per game and used every time you press A to play.
 +
@@ -3489,7 +3708,8 @@ index 0000000..2319943
 +| File | Purpose |
 +|---|---|
 +| `/menu/library.ini` | Folder order and hidden folders (below) |
-+| `/menu/label_overrides.ini` | Labels you picked with Choose Label |
++| `/menu/label_overrides.ini` | Labels you picked with Choose Label, and cart colours you chose |
++| `/a3d/` | Analogue 3D entries made with Create Analogue 3D Entry, to copy to the Analogue 3D's card; `/a3d/template/settings.json` is your optional template |
 +| `/menu/labels.db` | Label art, copied from your Analogue 3D |
 +| `/menu/config.ini` and the per-game `.ini` files | Stock N64FlashcartMenu settings, unchanged |
 +
@@ -3532,7 +3752,9 @@ index 0000000..2319943
 +- The N64 outputs at most 640 pixels across. The Analogue 3D stretches this to 16:9, so each pixel is about a third wider than tall. Text uses fonts narrowed to compensate, which makes them slightly soft. Labels and carts are pre-shaped.
 +- All menu screens use the 3DOS style, except the image viewer, music player and emulator loading screens, which still use the stock layout.
 +- Text uses basic Latin characters only. Accented and Japanese characters show as spaces.
-+- Labels are drawn at about 58×86 pixels, so fine label detail is limited by the N64's resolution.
++- Labels are drawn at 56×86 pixels, so fine label detail is limited by the N64's resolution.
++- 64DD disks show a blank disk in the Library: there's no label art for disks yet.
++- Cart colours have no Japanese data, so Japanese carts are grey. Australian carts that share Europe's game code use the European colour.
 +- Only what is in `labels.db` can be shown. There is no automatic download, and labels can't be searched by name.
 +
 +---
@@ -3550,7 +3772,7 @@ index 0000000..2319943
 +
 +# Toolchain: libdragon preview (see N64FlashcartMenu's README, or use its devcontainer/Docker image)
 +export N64_INST=/path/to/libdragon-toolchain
-+make MENU_VERSION='"0.3.5-library-1.4"'
++make MENU_VERSION='"0.3.5-library-1.5"'
 +# Output: output/sc64menu.n64
 +```
 +
@@ -3646,6 +3868,181 @@ index 9ed3edf..0eb1720 100644
 +void bookkeeping_remove_path(bookkeeping_t *bookkeeping, path_t *path);
 +
  #endif /* BOOKKEEPING_H__ */
+diff --git a/src/menu/cart_colours.c b/src/menu/cart_colours.c
+new file mode 100644
+index 0000000..5aa5819
+--- /dev/null
++++ b/src/menu/cart_colours.c
+@@ -0,0 +1,123 @@
++/**
++ * @file cart_colours.c
++ * @brief Original cartridge colours of N64 games (see cart_colours.h).
++ * @ingroup menu
++ *
++ * Sources: micro-64.com "Coloured Carts" (North America, PAL and Australia) and
++ * retrorecall.net "N64 Colored Cartridges" (North America). No Japanese data was found,
++ * so Japanese cartridges stay grey. Where a game was later re-released in grey, the
++ * original coloured release is used; players can change it per game in Configure.
++ */
++
++#include <stdio.h>
++#include <string.h>
++
++#include "cart_colours.h"
++
++static const char *names[CART_COLOUR_COUNT] = {
++    "Grey", "Black", "Red", "Green", "Blue", "Yellow", "Gold", "Silver", "Purple", "Pink",
++};
++
++const char *cart_colour_name (cart_colour_t colour) {
++    return (colour >= 0 && colour < CART_COLOUR_COUNT) ? names[colour] : names[CART_GREY];
++}
++
++#define G CART_GREY
++typedef struct {
++    char id[3];             // game code without the region letter
++    unsigned char na;       // North America (E)
++    unsigned char pal;      // Europe (P, D, F, I, S, ...)
++    unsigned char au;       // Australia (U)
++} colour_entry_t;
++
++static const colour_entry_t table[] = {
++    { "NO7", CART_BLUE,   G,           G },            // 007: The World Is Not Enough
++    { "NAY", CART_BLACK,  G,           G },            // Aidyn Chronicles: The First Mage
++    { "NAS", CART_RED,    G,           G },            // All-Star Baseball 2001
++    { "NAR", CART_BLACK,  G,           G },            // Armorines: Project S.W.A.R.M.
++    { "NAC", CART_GREEN,  G,           G },            // Army Men: Air Combat
++    { "N32", CART_GREEN,  G,           G },            // Army Men: Sarge's Heroes 2
++    { "NB4", CART_BLUE,   G,           G },            // Bass Masters 2000
++    { "NJQ", CART_BLACK,  G,           G },            // Batman Beyond: Return of the Joker
++    { "NBQ", CART_GREEN,  G,           G },            // BattleTanx: Global Assault
++    { "NZO", CART_BLACK,  G,           G },            // Battlezone: Rise of the Black Dogs
++    { "NDO", CART_YELLOW, G,           CART_YELLOW },  // Donkey Kong 64
++    { "NJM", CART_YELLOW, G,           G },            // Earthworm Jim 3D
++    { "NWI", CART_BLACK,  G,           G },            // ECW Hardcore Revolution
++    { "NFG", CART_BLACK,  G,           G },            // Fighter Destiny 2
++    { "NHT", CART_BLUE,   G,           G },            // Hydro Thunder
++    { "NCO", CART_RED,    G,           G },            // Jeremy McGrath Supercross 2000
++    { "NZS", CART_GOLD,   CART_GOLD,   CART_GOLD },    // The Legend of Zelda: Majora's Mask
++    { "CZL", CART_GOLD,   G,           CART_GOLD },    // The Legend of Zelda: Ocarina of Time
++    { "NZL", CART_GOLD,   G,           CART_GOLD },    // The Legend of Zelda: Ocarina of Time (later revisions)
++    { "NFL", CART_BLUE,   G,           G },            // Madden NFL 2001
++    { "N2M", CART_BLACK,  G,           G },            // Madden NFL 2002
++    { "NJA", CART_RED,    G,           G },            // NBA Jam 2000
++    { "NCE", CART_BLACK,  G,           G },            // Nuclear Strike 64
++    { "NP3", CART_GOLD,   CART_GOLD,   CART_GOLD },    // Pokemon Stadium 2 (gold and silver; gold by default)
++    { "NPU", CART_BLACK,  G,           G },            // Power Rangers Lightspeed Rescue
++    { "NWQ", CART_BLACK,  G,           G },            // Rally Challenge 2000
++    { "NY2", CART_GREEN,  G,           G },            // Rayman 2: The Great Escape
++    { "NRO", CART_BLACK,  G,           G },            // Road Rash 64
++    { "NSU", CART_RED,    G,           G },            // Rocket: Robot on Wheels
++    { "NRK", CART_BLACK,  G,           G },            // Rugrats in Paris: The Movie
++    { "NSY", CART_BLACK,  G,           G },            // Scooby-Doo! Classic Creep Capers
++    { "NSL", CART_RED,    G,           G },            // Spider-Man
++    { "NR6", CART_BLACK,  G,           G },            // Tom Clancy's Rainbow Six
++    { "NTF", CART_BLUE,   G,           G },            // Tony Hawk's Pro Skater
++    { "NTQ", CART_YELLOW, G,           G },            // Tony Hawk's Pro Skater 2
++    { "N3T", CART_BLACK,  G,           G },            // Tony Hawk's Pro Skater 3
++    { "NT2", CART_BLACK,  CART_BLACK,  CART_BLACK },   // Turok 2: Seeds of Evil
++    { "NTK", CART_BLACK,  G,           G },            // Turok 3: Shadow of Oblivion
++    { "NRW", CART_BLACK,  G,           G },            // Turok: Rage Wars
++    { "NWV", CART_BLUE,   G,           G },            // WCW Backstage Assault
++    { "NW4", CART_BLACK,  G,           G },            // WWF No Mercy
++    { "NWX", CART_BLACK,  G,           G },            // WWF WrestleMania 2000
++    // NFL QB Club 2001 (red in North America) is missing: its game code isn't known yet.
++};
++#undef G
++
++cart_colour_t cart_colour_default (const char game_code[4]) {
++    for (size_t i = 0; i < sizeof(table) / sizeof(table[0]); i++) {
++        if (memcmp(table[i].id, game_code, 3) != 0) {
++            continue;
++        }
++        switch (game_code[3]) {
++            case 'E': return (cart_colour_t)table[i].na;
++            case 'U': return (cart_colour_t)table[i].au;
++            case 'P': case 'D': case 'F': case 'I': case 'S':
++            case 'X': case 'Y': case 'H': case 'W': case 'L':
++                return (cart_colour_t)table[i].pal;
++            default: return CART_GREY;    // Japan and anything else
++        }
++    }
++    return CART_GREY;
++}
++
++bool cart_colour_read_game_code (const char *rom_path, char game_code[4]) {
++    FILE *f = fopen(rom_path, "rb");
++    if (f == NULL) {
++        return false;
++    }
++    unsigned char h[0x40];
++    size_t got = fread(h, 1, sizeof(h), f);
++    fclose(f);
++    if (got != sizeof(h)) {
++        return false;
++    }
++    // Normalise to Z64 (big-endian) byte order.
++    if (h[0] == 0x37 && h[1] == 0x80) {
++        for (size_t i = 0; i < sizeof(h); i += 2) {
++            unsigned char t = h[i]; h[i] = h[i + 1]; h[i + 1] = t;
++        }
++    } else if (h[0] == 0x40 && h[1] == 0x12) {
++        for (size_t i = 0; i < sizeof(h); i += 4) {
++            unsigned char a = h[i], b = h[i + 1];
++            h[i] = h[i + 3]; h[i + 1] = h[i + 2]; h[i + 2] = b; h[i + 3] = a;
++        }
++    } else if (h[0] != 0x80) {
++        return false;
++    }
++    memcpy(game_code, &h[0x3B], 4);
++    return true;
++}
+diff --git a/src/menu/cart_colours.h b/src/menu/cart_colours.h
+new file mode 100644
+index 0000000..5bfe9dc
+--- /dev/null
++++ b/src/menu/cart_colours.h
+@@ -0,0 +1,40 @@
++/**
++ * @file cart_colours.h
++ * @brief Cartridge colours for the Library: the colour set, each game's original
++ *        cartridge colour by region, and reading a ROM's game code.
++ * @ingroup menu
++ */
++
++#ifndef CART_COLOURS_H__
++#define CART_COLOURS_H__
++
++#include <stdbool.h>
++
++/** @brief Cartridge colours (the Analogue 3D's set, plus silver for Pokemon Stadium 2). */
++typedef enum {
++    CART_GREY = 0,
++    CART_BLACK,
++    CART_RED,
++    CART_GREEN,
++    CART_BLUE,
++    CART_YELLOW,
++    CART_GOLD,
++    CART_SILVER,
++    CART_PURPLE,
++    CART_PINK,
++    CART_COLOUR_COUNT,
++} cart_colour_t;
++
++/** @brief Display name of a colour, e.g. "Gold". */
++const char *cart_colour_name (cart_colour_t colour);
++
++/**
++ * @brief The colour a game's cartridge was originally released in, from its 4-character
++ *        game code (the last character is the region). Grey when the game isn't listed.
++ */
++cart_colour_t cart_colour_default (const char game_code[4]);
++
++/** @brief Read a ROM's 4-character game code from its header (any byte order). */
++bool cart_colour_read_game_code (const char *rom_path, char game_code[4]);
++
++#endif /* CART_COLOURS_H__ */
 diff --git a/src/menu/dd_pairing.c b/src/menu/dd_pairing.c
 new file mode 100644
 index 0000000..7f0c410
@@ -3856,10 +4253,10 @@ index fa1139e..803b4fe 100644
  /**
 diff --git a/src/menu/labels_db.c b/src/menu/labels_db.c
 new file mode 100644
-index 0000000..75c1993
+index 0000000..b7e0029
 --- /dev/null
 +++ b/src/menu/labels_db.c
-@@ -0,0 +1,295 @@
+@@ -0,0 +1,346 @@
 +/**
 + * @file labels_db.c
 + * @brief Reader for the Analogue 3D cartridge label database (labels.db)
@@ -4068,18 +4465,38 @@ index 0000000..75c1993
 +        return false;
 +    }
 +
-+    *out = surface_alloc(FMT_RGBA16, LABEL_WIDTH, LABEL_HEIGHT);
++    *out = surface_alloc(FMT_RGBA16, LABEL_DRAW_W, LABEL_DRAW_H);
 +    if (out->buffer == NULL) {
 +        free(bgra);
 +        return false;
 +    }
 +
-+    for (int y = 0; y < LABEL_HEIGHT; y++) {
++    // Scale once, here, to the exact on-screen size: each output pixel is the area-weighted
++    // average of the source pixels it covers (sharper than stretching on the console every
++    // frame), then rounded (not truncated) to 5 bits per channel.
++    const float step = (float)LABEL_WIDTH / (float)LABEL_DRAW_W;
++    for (int y = 0; y < LABEL_DRAW_H; y++) {
++        int sy = y * LABEL_HEIGHT / LABEL_DRAW_H;
 +        uint16_t *row = (uint16_t *)((uint8_t *)out->buffer + y * out->stride);
-+        const uint8_t *src = &bgra[y * LABEL_WIDTH * 4];
-+        for (int x = 0; x < LABEL_WIDTH; x++) {
-+            const uint8_t *p = &src[x * 4];
-+            row[x] = color_to_packed16(RGBA32(p[2], p[1], p[0], 0xFF));
++        const uint8_t *src = &bgra[sy * LABEL_WIDTH * 4];
++        for (int x = 0; x < LABEL_DRAW_W; x++) {
++            float x0 = x * step, x1 = x0 + step;
++            float acc[3] = { 0, 0, 0 }, total = 0;
++            for (int sx = (int)x0; sx < LABEL_WIDTH && sx < x1; sx++) {
++                float lo = sx > x0 ? sx : x0, hi = sx + 1 < x1 ? sx + 1 : x1;
++                float w = hi - lo;
++                if (w <= 0) continue;
++                const uint8_t *p = &src[sx * 4];
++                acc[0] += p[2] * w; acc[1] += p[1] * w; acc[2] += p[0] * w;
++                total += w;
++            }
++            int c[3];
++            for (int k = 0; k < 3; k++) {
++                int v = (int)(acc[k] / total + 0.5f);
++                v = (v + 4) & ~7;      // round to the nearest 5-bit level
++                c[k] = v > 255 ? 255 : v;
++            }
++            row[x] = color_to_packed16(RGBA32(c[0], c[1], c[2], 0xFF));
 +        }
 +    }
 +
@@ -4155,12 +4572,43 @@ index 0000000..75c1993
 +    ini_delete_key(overrides, OVERRIDES_SECTION, key);
 +    ini_save(overrides, overrides_path);
 +}
++
++
++// ---------------------------------------------------------------------------
++// Per-game cartridge colour choices, in the same file:
++//   [colours]
++//   <hash of the ROM path> = <colour number>
++
++#define COLOURS_SECTION "colours"
++
++int labels_colour_override_get (const char *rom_path) {
++    if (!overrides) {
++        return -1;
++    }
++    char key[12];
++    override_key(rom_path, key);
++    return ini_get_int(overrides, COLOURS_SECTION, key, -1);
++}
++
++void labels_colour_override_set (const char *rom_path, int colour) {
++    if (!overrides || !overrides_path) {
++        return;
++    }
++    char key[12];
++    override_key(rom_path, key);
++    if (colour < 0) {
++        ini_delete_key(overrides, COLOURS_SECTION, key);
++    } else {
++        ini_set_int(overrides, COLOURS_SECTION, key, colour);
++    }
++    ini_save(overrides, overrides_path);
++}
 diff --git a/src/menu/labels_db.h b/src/menu/labels_db.h
 new file mode 100644
-index 0000000..9eeadf6
+index 0000000..249399e
 --- /dev/null
 +++ b/src/menu/labels_db.h
-@@ -0,0 +1,63 @@
+@@ -0,0 +1,74 @@
 +/**
 + * @file labels_db.h
 + * @brief Reader for the Analogue 3D cartridge label database (labels.db)
@@ -4180,6 +4628,11 @@ index 0000000..9eeadf6
 +
 +#define LABEL_WIDTH     (74)
 +#define LABEL_HEIGHT    (86)
++
++/** @brief Labels are loaded pre-scaled to their on-screen size: 74 x 86 at 75% width
++ *  (undoing the Analogue 3D's 16:9 stretch), the exact size of the cart's label window. */
++#define LABEL_DRAW_W    (56)
++#define LABEL_DRAW_H    (86)
 +
 +/** @brief Open the label database. Returns false if the file is missing or invalid. */
 +bool labels_db_init (const char *path);
@@ -4208,7 +4661,7 @@ index 0000000..9eeadf6
 +/** @brief Index of a cartridge ID in the database, or -1. */
 +int labels_db_index_of (uint32_t id);
 +
-+/** @brief Load the label at @p index into a newly allocated RGBA16 surface. */
++/** @brief Load the label at @p index into a newly allocated RGBA16 surface, LABEL_DRAW_W x LABEL_DRAW_H. */
 +bool labels_db_load_index (int index, surface_t *out);
 +
 +/** @brief Load the per-game label choices from @p ini_path. */
@@ -4222,6 +4675,12 @@ index 0000000..9eeadf6
 +
 +/** @brief Forget the chosen label for this ROM. */
 +void labels_override_clear (const char *rom_path);
++
++/** @brief Cartridge colour chosen for this ROM (a cart_colour_t), or -1 for its original colour. */
++int labels_colour_override_get (const char *rom_path);
++
++/** @brief Remember a cartridge colour for this ROM; -1 goes back to its original colour. */
++void labels_colour_override_set (const char *rom_path, int colour);
 +
 +#endif /* LABELS_DB_H__ */
 diff --git a/src/menu/library_config.c b/src/menu/library_config.c
@@ -4874,25 +5333,20 @@ index 6e15aad..4510c80 100644
  }
 diff --git a/src/menu/ui_components/lib_sprites.h b/src/menu/ui_components/lib_sprites.h
 new file mode 100644
-index 0000000..e1875f1
+index 0000000..69b5a36
 --- /dev/null
 +++ b/src/menu/ui_components/lib_sprites.h
-@@ -0,0 +1,28 @@
-+/* Generated by tools/bake_sprites.py: pre-scaled, opaque cartridge art and label windows (framebuffer px). */
+@@ -0,0 +1,23 @@
++/* Generated by tools/bake_sprites.py: pre-scaled cartridge and disk art and label windows (framebuffer px). */
 +#ifndef LIB_SPRITES_H__
 +#define LIB_SPRITES_H__
-+#define CART_SEL_W 112
-+#define CART_SEL_H 98
-+#define CART_SEL_WIN_X 27
-+#define CART_SEL_WIN_Y 7
-+#define CART_SEL_WIN_W 58
-+#define CART_SEL_WIN_H 86
-+#define CART_SMALL_W 112
-+#define CART_SMALL_H 98
-+#define CART_SMALL_WIN_X 27
-+#define CART_SMALL_WIN_Y 7
-+#define CART_SMALL_WIN_W 58
-+#define CART_SMALL_WIN_H 86
++#define CART_W 108
++#define CART_H 98
++#define CART_WIN_X 26
++#define CART_WIN_Y 7
++#define CART_WIN_W 56
++#define CART_WIN_H 86
++#define CART_SPRITE_NAMES "rom:/lib-cart-grey.sprite", "rom:/lib-cart-black.sprite", "rom:/lib-cart-red.sprite", "rom:/lib-cart-green.sprite", "rom:/lib-cart-blue.sprite", "rom:/lib-cart-yellow.sprite", "rom:/lib-cart-gold.sprite", "rom:/lib-cart-silver.sprite", "rom:/lib-cart-purple.sprite", "rom:/lib-cart-pink.sprite"
 +#define DISK_SEL_W 59
 +#define DISK_SEL_H 80
 +#define DISK_SEL_WIN_X 12
@@ -4908,10 +5362,10 @@ index 0000000..e1875f1
 +#endif
 diff --git a/src/menu/ui_components/library_ui.c b/src/menu/ui_components/library_ui.c
 new file mode 100644
-index 0000000..6a9ab5d
+index 0000000..7e5773b
 --- /dev/null
 +++ b/src/menu/ui_components/library_ui.c
-@@ -0,0 +1,954 @@
+@@ -0,0 +1,1014 @@
 +/**
 + * @file library_ui.c
 + * @brief 3DOS-style Library drawing helpers
@@ -4927,6 +5381,7 @@ index 0000000..6a9ab5d
 +#include "library_ui.h"
 +#include "../fonts.h"
 +#include "../labels_db.h"
++#include "../cart_colours.h"
 +#include "lib_sprites.h"
 +
 +#define COLOR_BG            RGBA32(0x0A, 0x0A, 0x0B, 0xFF)
@@ -4935,7 +5390,6 @@ index 0000000..6a9ab5d
 +#define COLOR_TILE          RGBA32(0x23, 0x23, 0x26, 0xFF)
 +#define COLOR_LABEL_BLANK   RGBA32(0x8F, 0x8F, 0x95, 0xFF)
 +#define COLOR_LABEL_LOADING RGBA32(0x5E, 0x5E, 0x66, 0xFF)
-+#define COLOR_LABEL_BLANK   RGBA32(0x8F, 0x8F, 0x95, 0xFF)   // blank label grey, as tools/bake_sprites.py
 +#define COLOR_CHIP          RGBA32(0xE6, 0xE6, 0xEA, 0xFF)
 +#define COLOR_BADGE         RGBA32(0xD6, 0xE2, 0xF5, 0xFF)
 +#define COLOR_DOT_OFF       RGBA32(0x5C, 0x5C, 0x62, 0xFF)
@@ -4952,7 +5406,9 @@ index 0000000..6a9ab5d
 +#define LABEL_CACHE_SIZE    (14)
 +
 +static bool initialized = false;
-+static sprite_t *spr_cart_sel, *spr_cart_small;
++static sprite_t *spr_cart[CART_COLOUR_COUNT];
++static int loader_colour = CART_GREY;
++static int colour_reads_this_frame = 0;
 +static sprite_t *spr_disk_sel, *spr_disk_small;
 +static sprite_t *spr_btn[4];
 +static sprite_t *spr_icon[LIB_TAB_COUNT];
@@ -4996,9 +5452,10 @@ index 0000000..6a9ab5d
 +static void blit_surface (surface_t *s, float x, float y, float sx, float sy) {
 +    x = floorf(x + 0.5f);
 +    y = floorf(y + 0.5f);
++    bool same_size = (sx == 1.0f && sy == 1.0f);   // pre-scaled labels: copy pixel for pixel
 +    rdpq_set_mode_standard();
-+    rdpq_mode_filter(FILTER_BILINEAR);
-+    rdpq_tex_blit(s, x, y, &(rdpq_blitparms_t) { .scale_x = sx, .scale_y = sy, .filtering = true });
++    rdpq_mode_filter(same_size ? FILTER_POINT : FILTER_BILINEAR);
++    rdpq_tex_blit(s, x, y, &(rdpq_blitparms_t) { .scale_x = sx, .scale_y = sy, .filtering = !same_size });
 +}
 +
 +// Make any string safe to hand to rdpq_text: '$' and '^' start font/style escapes in libdragon
@@ -5135,8 +5592,10 @@ index 0000000..6a9ab5d
 +    if (initialized) {
 +        return;
 +    }
-+    spr_cart_sel = sprite_load("rom:/lib-cart-sel.sprite");
-+    spr_cart_small = sprite_load("rom:/lib-cart-small.sprite");
++    static const char *cart_files[CART_COLOUR_COUNT] = { CART_SPRITE_NAMES };
++    for (int i = 0; i < CART_COLOUR_COUNT; i++) {
++        spr_cart[i] = sprite_load(cart_files[i]);
++    }
 +    spr_disk_sel = sprite_load("rom:/lib-disk-sel.sprite");
 +    spr_disk_small = sprite_load("rom:/lib-disk-small.sprite");
 +    spr_btn[0] = sprite_load("rom:/lib-btn-a.sprite");
@@ -5153,6 +5612,7 @@ index 0000000..6a9ab5d
 +void library_ui_begin (surface_t *display) {
 +    library_ui_init();
 +    label_loads_this_frame = 0;
++    colour_reads_this_frame = 0;
 +    rdpq_attach_clear(display, NULL);
 +    fill(0, 0, display->width, display->height, COLOR_BG);
 +}
@@ -5303,7 +5763,7 @@ index 0000000..6a9ab5d
 +        int sx1 = wx + ww > 640 ? 640 : wx + ww, sy1 = wy + wh > 480 ? 480 : wy + wh;
 +        if (sx1 <= sx0 || sy1 <= sy0) return;
 +        rdpq_set_scissor(sx0, sy0, sx1, sy1);
-+        blit_surface(t->label, wx, wy, (float)ww / (float)LABEL_WIDTH, (float)wh / (float)LABEL_HEIGHT);
++        blit_surface(t->label, wx, wy, (float)ww / (float)t->label->width, (float)wh / (float)t->label->height);
 +        rdpq_set_scissor(0, 0, 640, 480);
 +    } else if (t->kind == LIB_TILE_ROM && t->label_pending) {
 +        fill(wx, wy, wx + ww, wy + wh, COLOR_LABEL_LOADING);
@@ -5344,16 +5804,17 @@ index 0000000..6a9ab5d
 +        if (selected) draw_label(t, x + DISK_SEL_WIN_X, y + DISK_SEL_WIN_Y, DISK_SEL_WIN_W, DISK_SEL_WIN_H, true);
 +        else draw_label(t, x + DISK_SMALL_WIN_X, y + DISK_SMALL_WIN_Y, DISK_SMALL_WIN_W, DISK_SMALL_WIN_H, false);
 +    } else {
-+        int sw = selected ? CART_SEL_W : CART_SMALL_W, sh = selected ? CART_SEL_H : CART_SMALL_H;
++        int sw = CART_W, sh = CART_H;
 +        int x = cx - sw / 2, y = cy - sh / 2;
 +        // Label (or blank grey) first, then the cart over it through its cut-out window.
-+        int wx = x + (selected ? CART_SEL_WIN_X : CART_SMALL_WIN_X), wy = y + (selected ? CART_SEL_WIN_Y : CART_SMALL_WIN_Y);
-+        int ww = selected ? CART_SEL_WIN_W : CART_SMALL_WIN_W, wh = selected ? CART_SEL_WIN_H : CART_SMALL_WIN_H;
++        int wx = x + CART_WIN_X, wy = y + CART_WIN_Y;
++        int ww = CART_WIN_W, wh = CART_WIN_H;
 +        fill(wx, wy, wx + ww, wy + wh, COLOR_LABEL_BLANK);
 +        lib_tile_t art = *t;
 +        art.code = NULL;
 +        draw_label(&art, wx, wy, ww, wh, selected);
-+        copy_sprite(selected ? spr_cart_sel : spr_cart_small, x, y);
++        int colour = (t->colour >= 0 && t->colour < CART_COLOUR_COUNT) ? t->colour : CART_GREY;
++        copy_sprite(spr_cart[colour], x, y);
 +        if (t->code) {
 +            lib_tile_t code_only = { .kind = t->kind, .code = t->code };
 +            draw_label(&code_only, wx, wy, ww, wh, selected);
@@ -5720,6 +6181,55 @@ index 0000000..6a9ab5d
 +    return slot->found ? &slot->surface : NULL;
 +}
 +
++// ---------------------------------------------------------------------------
++// Cartridge colour cache (by ROM path)
++
++#define COLOUR_CACHE_SIZE 64
++static struct { bool used; uint32_t hash; int colour; } colour_cache[COLOUR_CACHE_SIZE];
++static int colour_next = 0;
++
++int library_cart_colour_for_code (const char *rom_path, const char game_code[4]) {
++    int chosen = rom_path ? labels_colour_override_get(rom_path) : -1;
++    if (chosen >= 0 && chosen < CART_COLOUR_COUNT) {
++        return chosen;
++    }
++    return cart_colour_default(game_code);
++}
++
++int library_cart_colour (const char *rom_path, bool *pending) {
++    if (pending) *pending = false;
++    if (rom_path == NULL) return CART_GREY;
++    uint32_t h = hash_str(rom_path);
++    for (int i = 0; i < COLOUR_CACHE_SIZE; i++) {
++        if (colour_cache[i].used && colour_cache[i].hash == h) {
++            return colour_cache[i].colour;
++        }
++    }
++    if (colour_reads_this_frame >= 2) {
++        if (pending) *pending = true;
++        return CART_GREY;
++    }
++    colour_reads_this_frame++;
++    char code[4];
++    int colour = CART_GREY;
++    if (cart_colour_read_game_code(rom_path, code)) {
++        colour = library_cart_colour_for_code(rom_path, code);
++    } else {
++        int chosen = labels_colour_override_get(rom_path);
++        if (chosen >= 0 && chosen < CART_COLOUR_COUNT) colour = chosen;
++    }
++    int slot = colour_next;
++    colour_next = (colour_next + 1) % COLOUR_CACHE_SIZE;
++    colour_cache[slot].used = true;
++    colour_cache[slot].hash = h;
++    colour_cache[slot].colour = colour;
++    return colour;
++}
++
++void library_cart_colour_cache_clear (void) {
++    memset(colour_cache, 0, sizeof(colour_cache));
++}
++
 +void library_label_cache_clear (void) {
 +    rspq_wait();
 +    for (int i = 0; i < LABEL_CACHE_SIZE; i++) {
@@ -5756,6 +6266,10 @@ index 0000000..6a9ab5d
 +    text(FNT_LIB_MONO, STL_DIM, cx - 60, DY(410), 120, ALIGN_CENTER, pct);
 +}
 +
++void library_ui_set_loader_colour (int colour) {
++    loader_colour = (colour >= 0 && colour < CART_COLOUR_COUNT) ? colour : CART_GREY;
++}
++
 +void library_ui_cart_loader (float progress, const char *title, surface_t *label, bool disk) {
 +    library_ui_init();
 +    fill(0, 0, 640, 480, COLOR_BG);
@@ -5776,10 +6290,10 @@ index 0000000..6a9ab5d
 +        copy_sprite(spr_disk_sel, x, y);
 +        draw_label(&t, x + DISK_SEL_WIN_X, y + DISK_SEL_WIN_Y, DISK_SEL_WIN_W, DISK_SEL_WIN_H, true);
 +    } else {
-+        int x = mx - CART_SEL_W / 2, y = my - CART_SEL_H / 2;
-+        fill(x + CART_SEL_WIN_X, y + CART_SEL_WIN_Y, x + CART_SEL_WIN_X + CART_SEL_WIN_W, y + CART_SEL_WIN_Y + CART_SEL_WIN_H, COLOR_LABEL_BLANK);
-+        draw_label(&t, x + CART_SEL_WIN_X, y + CART_SEL_WIN_Y, CART_SEL_WIN_W, CART_SEL_WIN_H, true);
-+        copy_sprite(spr_cart_sel, x, y);
++        int x = mx - CART_W / 2, y = my - CART_H / 2;
++        fill(x + CART_WIN_X, y + CART_WIN_Y, x + CART_WIN_X + CART_WIN_W, y + CART_WIN_Y + CART_WIN_H, COLOR_LABEL_BLANK);
++        draw_label(&t, x + CART_WIN_X, y + CART_WIN_Y, CART_WIN_W, CART_WIN_H, true);
++        copy_sprite(spr_cart[loader_colour], x, y);
 +    }
 +
 +    if (title) {
@@ -5868,10 +6382,10 @@ index 0000000..6a9ab5d
 +}
 diff --git a/src/menu/ui_components/library_ui.h b/src/menu/ui_components/library_ui.h
 new file mode 100644
-index 0000000..581e499
+index 0000000..613f7de
 --- /dev/null
 +++ b/src/menu/ui_components/library_ui.h
-@@ -0,0 +1,165 @@
+@@ -0,0 +1,182 @@
 +/**
 + * @file library_ui.h
 + * @brief 3DOS-style Library drawing helpers (tabs, cartridge rows, info grid, footer)
@@ -5932,6 +6446,7 @@ index 0000000..581e499
 +    surface_t *label;       /**< Label art, or NULL for a blank label */
 +    bool label_pending;     /**< Label art is still loading */
 +    bool dim;               /**< Drawn dimmed (a hidden folder being shown) */
++    int colour;             /**< Cartridge colour (cart_colour_t); 0 = grey */
 +} lib_tile_t;
 +
 +/** @brief Load sprites. Safe to call more than once. */
@@ -6016,6 +6531,22 @@ index 0000000..581e499
 +/** @brief Game loading screen: selected cart with its label, title, bar and percentage. */
 +void library_ui_cart_loader (float progress, const char *title, surface_t *label, bool disk);
 +
++/** @brief Colour of the cart on the loading screen (cart_colour_t); set before loading a game. */
++void library_ui_set_loader_colour (int colour);
++
++/**
++ * @brief Cartridge colour for a ROM in the Library: the player's choice, else its original
++ *        colour from its game code. Cached; reads at most a couple of ROM headers per frame,
++ *        so it can return grey with @p pending set until the header has been read.
++ */
++int library_cart_colour (const char *rom_path, bool *pending);
++
++/** @brief Cartridge colour from a known game code (player's choice first). */
++int library_cart_colour_for_code (const char *rom_path, const char game_code[4]);
++
++/** @brief Forget cached cartridge colours (after the player changes one). */
++void library_cart_colour_cache_clear (void);
++
 +/** @brief Dim the screen and draw a 3DOS-style rounded panel. */
 +void library_ui_panel (int x0, int y0, int x1, int y1);
 +
@@ -6038,7 +6569,7 @@ index 0000000..581e499
 +
 +#endif /* LIBRARY_UI_H__ */
 diff --git a/src/menu/views/browser.c b/src/menu/views/browser.c
-index 56568d9..7f149e0 100644
+index 56568d9..38bf8c2 100644
 --- a/src/menu/views/browser.c
 +++ b/src/menu/views/browser.c
 @@ -1,3 +1,4 @@
@@ -6539,7 +7070,7 @@ index 56568d9..7f149e0 100644
              default:
                  menu->next_mode = MENU_MODE_FILE_INFO;
                  break;
-@@ -663,94 +972,244 @@ static void process (menu_t *menu) {
+@@ -663,94 +972,246 @@ static void process (menu_t *menu) {
      } else if (menu->actions.back && !path_is_root(menu->browser.directory)) {
          if (pop_directory(menu)) {
              menu->browser.valid = false;
@@ -6691,12 +7222,14 @@ index 56568d9..7f149e0 100644
 +            if (e->type == ENTRY_TYPE_ROM && !menu->browser.archive) {
 +                path_t *p = path_clone_push(menu->browser.directory, e->name);
 +                tiles[t].label = library_label_get(path_get(p), &tiles[t].label_pending);
++                tiles[t].colour = library_cart_colour(path_get(p), NULL);
 +                path_free(p);
 +            } else if (e->type == ENTRY_TYPE_SAVE && !menu->browser.archive) {
 +                const char *rom = save_rom_path(menu, e);
 +                if (rom) {
 +                    tiles[t].kind = LIB_TILE_ROM;
 +                    tiles[t].label = library_label_get(rom, &tiles[t].label_pending);
++                    tiles[t].colour = library_cart_colour(rom, NULL);
 +                }
 +            }
 +        }
@@ -6855,7 +7388,7 @@ index 56568d9..7f149e0 100644
  }
  
  
-@@ -758,6 +1217,8 @@ void view_browser_init (menu_t *menu) {
+@@ -758,6 +1219,8 @@ void view_browser_init (menu_t *menu) {
      if (!menu->browser.valid) {
          ui_components_context_menu_init(&entry_context_menu);
          ui_components_context_menu_init(&archive_context_menu);
@@ -6864,7 +7397,7 @@ index 56568d9..7f149e0 100644
          ui_components_context_menu_init(&settings_context_menu);
          if (load_directory(menu)) {
              path_free(menu->browser.directory);
-@@ -804,5 +1265,7 @@ void view_browser_init (menu_t *menu) {
+@@ -804,5 +1267,7 @@ void view_browser_init (menu_t *menu) {
  void view_browser_display (menu_t *menu, surface_t *display) {
      process(menu);
  
@@ -8282,7 +8815,7 @@ index e8e8aac..54bf624 100644
  }
  
 diff --git a/src/menu/views/history_favorites.c b/src/menu/views/history_favorites.c
-index b6bdeb9..06fb024 100644
+index b6bdeb9..ecddd00 100644
 --- a/src/menu/views/history_favorites.c
 +++ b/src/menu/views/history_favorites.c
 @@ -1,7 +1,9 @@
@@ -8295,7 +8828,7 @@ index b6bdeb9..06fb024 100644
  #include "../sound.h"
  #include "views.h"
  
-@@ -12,213 +14,293 @@ typedef enum {
+@@ -12,213 +14,294 @@ typedef enum {
      BOOKKEEPING_TAB_CONTEXT_NONE
  } bookkeeping_tab_context_t;
  
@@ -8623,6 +9156,7 @@ index b6bdeb9..06fb024 100644
 +            } else {
 +                tiles[t].kind = LIB_TILE_ROM;
 +                tiles[t].label = library_label_get(path_get(it->primary_path), &tiles[t].label_pending);
++                tiles[t].colour = library_cart_colour(path_get(it->primary_path), NULL);
 +            }
 +        }
 +        library_ui_row(tiles, total, selected < 0 ? 0 : selected, false, 0);
@@ -8757,7 +9291,7 @@ index a800d27..88c8406 100644
  
 diff --git a/src/menu/views/label_picker.c b/src/menu/views/label_picker.c
 new file mode 100644
-index 0000000..a88b935
+index 0000000..112db07
 --- /dev/null
 +++ b/src/menu/views/label_picker.c
 @@ -0,0 +1,252 @@
@@ -8947,11 +9481,11 @@ index 0000000..a88b935
 +        if (i < page_next_load && page_found[i]) {
 +            rdpq_set_scissor(lx, ly, lx + lw, ly + lh);
 +            rdpq_set_mode_standard();
-+            rdpq_mode_filter(FILTER_BILINEAR);
++            rdpq_mode_filter(FILTER_POINT);
 +            rdpq_tex_blit(&page_surfaces[i], lx, ly, &(rdpq_blitparms_t) {
-+                .scale_x = lw / (float)LABEL_WIDTH,
-+                .scale_y = lh / (float)LABEL_HEIGHT,
-+                .filtering = true,
++                .scale_x = lw / (float)LABEL_DRAW_W,
++                .scale_y = lh / (float)LABEL_DRAW_H,
++                .filtering = false,   // labels are pre-scaled to this size
 +            });
 +            rdpq_set_scissor(0, 0, 640, 480);
 +        } else {
@@ -9015,21 +9549,25 @@ index 0000000..a88b935
 +}
 diff --git a/src/menu/views/library_configure.c b/src/menu/views/library_configure.c
 new file mode 100644
-index 0000000..97cafd4
+index 0000000..571c990
 --- /dev/null
 +++ b/src/menu/views/library_configure.c
-@@ -0,0 +1,466 @@
+@@ -0,0 +1,763 @@
 +/**
 + * @file library_configure.c
 + * @brief 3DOS-style per-game Configure screen (C-right in the Library).
 + * @ingroup view
 + */
 +
++#include <ctype.h>
 +#include <stdio.h>
++#include <stdlib.h>
 +#include <string.h>
 +
 +#include "../bookkeeping.h"
++#include "utils/fs.h"
 +#include "../dd_pairing.h"
++#include "../cart_colours.h"
 +#include "../library_config.h"
 +#include "../fonts.h"
 +#include "../labels_db.h"
@@ -9098,7 +9636,9 @@ index 0000000..97cafd4
 +    message_frames = 90;
 +}
 +
-+static bool expandable = false;   // cartridge can be a 64DD Game Pak
++static bool expandable = false;
++static char signature[12];         // Analogue 3D cartridge signature (CRC32 of the first 8 KB)
++static bool signature_ok = false;   // cartridge can be a 64DD Game Pak
 +
 +static bool is_game_pak (menu_t *menu) {
 +    return menu->load.gamepak_path && menu->load.rom_path
@@ -9159,8 +9699,8 @@ index 0000000..97cafd4
 +    switch (category) {
 +        case CAT_HARDWARE: return expandable ? 5 : 4;
 +        case CAT_CHEATS: return 3;
-+        case CAT_CUSTOMIZATION: return 4;
-+        case CAT_ROM_INFO: return 12;
++        case CAT_CUSTOMIZATION: return 5;
++        case CAT_ROM_INFO: return 14;
 +        default: return 0;
 +    }
 +}
@@ -9198,6 +9738,14 @@ index 0000000..97cafd4
 +        settings_save(&menu->settings);
 +        menu->browser.reload = true;
 +    } else if (category == CAT_CUSTOMIZATION && row == 1) {
++        // Cart Colour: Original (the game's release colour), then every colour.
++        int current = labels_colour_override_get(path_get(menu->load.rom_path));   // -1 = original
++        int next = current + direction;
++        if (next < -1) next = CART_COLOUR_COUNT - 1;
++        if (next >= CART_COLOUR_COUNT) next = -1;
++        labels_colour_override_set(path_get(menu->load.rom_path), next);
++        library_cart_colour_cache_clear();
++    } else if (category == CAT_CUSTOMIZATION && row == 2) {
 +        int slot = favorite_slot(menu);
 +        if (slot >= 0) {
 +            bookkeeping_favorite_remove(&menu->bookkeeping, slot);
@@ -9215,7 +9763,271 @@ index 0000000..97cafd4
 +    }
 +}
 +
++// Analogue 3D entries. The Analogue 3D keeps one folder per game in /Library/N64/Games, named
++// "<title> <signature>" (signature in lower case), holding library.json (the game's details and
++// default settings) and settings.json (its display and hardware settings). This writes the same
++// folder under /a3d on the SummerCart64's card, so /a3d/Library can be copied across.
++//
++// Template (optional): copy settings.json from any game folder on the Analogue 3D (one set up the
++// way you like) into /a3d/template/. Recognised games only have settings.json; library.json exists
++// only for unrecognised carts, so template/library.json is optional (its "defaults" block is used).
++// Each entry still gets its own game's details and cart colour.
++
++static void json_string (FILE *f, const char *s) {
++    fputc('"', f);
++    for (; s && *s; s++) {
++        unsigned char c = (unsigned char)*s;
++        if (c == '"' || c == '\\') { fputc('\\', f); fputc(c, f); }
++        else if (c >= 0x20 && c < 0x7F) fputc(c, f);
++    }
++    fputc('"', f);
++}
++
++static const char *a3d_cart_colour (int colour) {
++    switch (colour) {
++        case CART_BLACK: return "black";
++        case CART_RED: return "red";
++        case CART_GREEN: return "green";
++        case CART_BLUE: return "blue";
++        case CART_YELLOW: return "yellow";
++        case CART_GOLD: return "gold";
++        case CART_PURPLE: return "purple";
++        case CART_PINK: return "pink";
++        default: return "gray";     // grey and silver (the Analogue 3D has no silver)
++    }
++}
++
++static char *read_small_file (menu_t *menu, char *rel, size_t max) {
++    path_t *p = path_init(menu->storage_prefix, rel);
++    FILE *f = fopen(path_get(p), "r");
++    path_free(p);
++    if (f == NULL) return NULL;
++    char *text = calloc(1, max + 1);
++    if (text == NULL) { fclose(f); return NULL; }
++    size_t len = fread(text, 1, max, f);
++    fclose(f);
++    text[len] = 0;
++    if (len == 0) { free(text); return NULL; }
++    return text;
++}
++
++// The lines inside library.json's "defaults" braces, without cart_color and trailing commas.
++static char *template_defaults (menu_t *menu) {
++    char *text = read_small_file(menu, "/a3d/template/library.json", 8192);
++    if (text == NULL) return NULL;
++    char *start = strstr(text, "\"defaults\"");
++    start = start ? strchr(start, '{') : NULL;
++    if (start == NULL) { free(text); return NULL; }
++    int depth = 0;
++    char *end = NULL;
++    for (char *c = start; *c; c++) {
++        if (*c == '{') depth++;
++        else if (*c == '}' && --depth == 0) { end = c; break; }
++    }
++    if (end == NULL) { free(text); return NULL; }
++    char *out = calloc(1, (size_t)(end - start) + 2);
++    if (out == NULL) { free(text); return NULL; }
++    size_t n = 0;
++    char *line = start + 1;
++    while (line < end) {
++        char *nl = memchr(line, '\n', (size_t)(end - line));
++        char *stop = nl ? nl : end;
++        char *x = line, *y = stop;
++        while (x < y && (*x == ' ' || *x == '\t' || *x == '\r')) x++;
++        while (y > x && (y[-1] == ' ' || y[-1] == '\t' || y[-1] == '\r' || y[-1] == ',')) y--;
++        if (y > x && strncmp(x, "\"cart_color\"", 12) != 0) {
++            if (n) out[n++] = '\n';
++            memcpy(&out[n], x, (size_t)(y - x));
++            n += (size_t)(y - x);
++        }
++        line = nl ? nl + 1 : end;
++    }
++    out[n] = 0;
++    free(text);
++    if (n == 0) { free(out); return NULL; }
++    return out;
++}
++
++// Folder name as the Analogue 3D writes it: title, a space, the signature in lower case.
++// Characters that can't be in a file name (and colons, as the Analogue 3D drops them) are removed.
++static void a3d_folder_name (const char *title, const char *sig, char *out, size_t len) {
++    size_t n = 0;
++    bool space = false;
++    for (const char *c = title; *c && n + 1 < len; c++) {
++        if (strchr("\\/:*?\"<>|", *c) || (unsigned char)*c < 0x20 || (unsigned char)*c > 0x7E) continue;
++        if (*c == ' ') {
++            if (space || n == 0) continue;
++            space = true;
++        } else {
++            space = false;
++        }
++        out[n++] = *c;
++    }
++    while (n > 0 && (out[n - 1] == ' ' || out[n - 1] == '.')) n--;
++    snprintf(out + n, len - n, "%s%s", n ? " " : "", sig);
++    for (char *c = out + n; *c; c++) *c = (char)tolower((unsigned char)*c);
++}
++
++static bool write_settings_json (menu_t *menu, path_t *dir, const char *colour, bool *used_template) {
++    path_t *file = path_clone_push(dir, "settings.json");
++    FILE *f = fopen(path_get(file), "w");
++    path_free(file);
++    if (f == NULL) return false;
++    char *tpl = read_small_file(menu, "/a3d/template/settings.json", 16384);
++    *used_template = (tpl != NULL);
++    if (tpl) {
++        // Copy the template, with this game's cart colour in "cartridge_color".
++        char *key = strstr(tpl, "\"cartridge_color\"");
++        char *q1 = key ? strchr(key + 17, '"') : NULL;
++        char *q2 = q1 ? strchr(q1 + 1, '"') : NULL;
++        if (q1 && q2) {
++            fwrite(tpl, 1, (size_t)(q1 - tpl), f);
++            fprintf(f, "\"%s\"", colour);
++            fputs(q2 + 1, f);
++        } else {
++            fputs(tpl, f);
++        }
++        free(tpl);
++    } else {
++        // Built-in: the Analogue 3D's own layout, Clean display mode at 4:3 (Image fit: Original),
++        // hardware options left at their defaults.
++        fprintf(f, "{\n  \"$schema\": \"https://schemas.analogue.co/platform/3d/settings.json\",\n  \"display\": {\n    \"odm\": \"clean\",\n    \"catalog\": {\n");
++        const char *crt_modes[] = { "bvm", "pvm", "crt", "scanlines" };
++        for (int i = 0; i < 4; i++) {
++            bool off = (i == 3);
++            fprintf(f, "      \"%s\": {\n        \"horizontal_beam_convergence\": \"%s\",\n        \"vertical_beam_convergence\": \"%s\",\n"
++                       "        \"enable_edge_overshoot\": %s,\n        \"enable_edge_hardness\": \"soft\",\n"
++                       "        \"image_fit\": \"original\",\n        \"image_size\": \"fill\"\n      },\n",
++                    crt_modes[i], off ? "off" : "consumer", off ? "off" : "consumer", (i == 1 || i == 2) ? "true" : "false");
++        }
++        fprintf(f, "      \"clean\": {\n        \"interpolation_alg\": \"blackman-harris\",\n        \"gamma_transfer_function\": \"modern\",\n"
++                   "        \"sharpness\": \"sharp\",\n        \"image_fit\": \"original\",\n        \"image_size\": \"fill\"\n      }\n    }\n  },\n");
++        fprintf(f, "  \"library\": {\n    \"cartridge_color\": \"%s\"\n  },\n", colour);
++        fprintf(f, "  \"hardware\": {\n    \"disable_antialiasing\": false,\n    \"disable_deblur\": false,\n    \"disable_texture_filtering\": false,\n"
++                   "    \"enable_32_bit_color\": false,\n    \"force_original_hardware\": false,\n    \"force_progressive_output\": false,\n"
++                   "    \"overclock\": \"auto\",\n    \"region\": \"auto\",\n    \"virtual_expansion_pak\": false,\n    \"horizontal_upscaling\": false\n  }\n}\n");
++    }
++    return fclose(f) == 0;
++}
++
++static void create_a3d_entry (menu_t *menu) {
++    rom_info_t *ri = &menu->load.rom_info;
++    char title[96], folder[128];
++    library_clean_title(path_last_get(menu->load.rom_path), title, sizeof(title));
++    a3d_folder_name(title, signature, folder, sizeof(folder));
++    path_t *dir = path_init(menu->storage_prefix, "/a3d/Library/N64/Games");
++    path_push(dir, folder);
++    if (directory_create(path_get(dir))) {
++        path_free(dir);
++        flash("Couldn't create the folder on the SD card");
++        sound_play_effect(SFX_ERROR);
++        return;
++    }
++    path_t *file = path_clone_push(dir, "library.json");
++    FILE *f = fopen(path_get(file), "w");
++    path_free(file);
++    if (f == NULL) {
++        path_free(dir);
++        flash("Couldn't write library.json");
++        sound_play_effect(SFX_ERROR);
++        return;
++    }
++
++    const char *region;
++    switch (ri->game_code[3]) {
++        case 'E': region = "\"usa\""; break;
++        case 'J': region = "\"japan\""; break;
++        case 'P': case 'D': case 'F': case 'I': case 'S': case 'U': case 'X': case 'Y': case 'H': case 'W': case 'L':
++            region = "\"europe\""; break;
++        default: region = "\"usa\", \"europe\", \"japan\""; break;
++    }
++    int players = ri->meta.num_players > 0 && ri->meta.num_players <= 4 ? (int)ri->meta.num_players : 1;
++    const char *author = (ri->meta.author && strcmp(ri->meta.author, "Not specified")) ? ri->meta.author : "Unknown";
++    int year = 0;
++    if (ri->meta.release_date && strcmp(ri->meta.release_date, "Not specified")) {
++        year = atoi(ri->meta.release_date);
++    }
++    const char *colour = a3d_cart_colour(library_cart_colour_for_code(path_get(menu->load.rom_path), ri->game_code));
++
++    fprintf(f, "{\n  \"$schema\": \"https://schemas.analogue.co/platform/3d/library.json\",\n  \"data\": {\n");
++    fprintf(f, "    \"title\": "); json_string(f, title); fprintf(f, ",\n");
++    fprintf(f, "    \"revision\": %u,\n", (unsigned)ri->version);
++    fprintf(f, "    \"player_count\": %d,\n", players);
++    fprintf(f, "    \"accessories\": [");
++    bool first = true;
++    #define ACC(cond, name) if (cond) { fprintf(f, "%s\"%s\"", first ? "" : ", ", name); first = false; }
++    ACC(ri->features.controller_pak, "controller-pak");
++    ACC(ri->features.rumble_pak, "rumble-pak");
++    ACC(ri->features.transfer_pak, "transfer-pak");
++    ACC(ri->features.expansion_pak == EXPANSION_PAK_REQUIRED || ri->features.expansion_pak == EXPANSION_PAK_RECOMMENDED, "expansion-pak");
++    #undef ACC
++    fprintf(f, "],\n");
++    fprintf(f, "    \"region\": [%s],\n", region);
++    fprintf(f, "    \"developers\": ["); json_string(f, author); fprintf(f, "],\n");
++    fprintf(f, "    \"publishers\": ["); json_string(f, author); fprintf(f, "]");
++    if (year >= 1990 && year <= 2100) fprintf(f, ",\n    \"release_year\": %d", year);
++    fprintf(f, "\n  },\n  \"defaults\": {\n");
++    fprintf(f, "    \"cart_color\": \"%s\"", colour);
++    char *custom = template_defaults(menu);
++    bool library_template = (custom != NULL);
++    if (custom) {
++        for (char *line = custom; line && *line; ) {
++            char *nl = strchr(line, '\n');
++            if (nl) *nl = 0;
++            fprintf(f, ",\n    %s", line);
++            line = nl ? nl + 1 : NULL;
++        }
++        free(custom);
++        fprintf(f, "\n  }\n}\n");
++    } else {
++        fprintf(f, ",\n    \"disable_anti_aliasing\": false,\n    \"disable_deblur\": false,\n    \"disable_texture_filtering\": false,\n");
++        fprintf(f, "    \"enable_32_bit_color\": false,\n    \"force_original_hardware\": false,\n    \"force_progressive_output\": false,\n");
++        fprintf(f, "    \"horizontal_upscaling\": false,\n    \"virtual_expansion_pak\": false,\n    \"overclock\": \"auto\",\n");
++        fprintf(f, "    \"region\": \"auto\",\n    \"virtual_accessory\": \"no-pak\"\n  }\n}\n");
++    }
++    bool ok = (fclose(f) == 0);
++    bool settings_template = false;
++    ok = write_settings_json(menu, dir, colour, &settings_template) && ok;
++    path_free(dir);
++
++    // A short how-to, written once.
++    path_t *readme = path_init(menu->storage_prefix, "/a3d/README.txt");
++    if (!file_exists(path_get(readme))) {
++        FILE *r = fopen(path_get(readme), "w");
++        if (r) {
++            fprintf(r, "Analogue 3D entries made by the SC64 A3D Library Menu\n\n"
++                       "Copy the Library folder in here to the root of your Analogue 3D's SD card\n"
++                       "(merge it with the Library folder already there). Each game gets a folder in\n"
++                       "Library/N64/Games named \"<title> <signature>\", as the Analogue 3D names them,\n"
++                       "with library.json (details and defaults) and settings.json (display settings).\n\n"
++                       "Make an entry with C-right on a game > ROM Info > Create Analogue 3D Entry.\n\n"
++                       "Your own settings: copy settings.json from any game folder on your Analogue 3D\n"
++                       "(one set up the way you like) into a folder here called template. New entries\n"
++                       "then use it; each game keeps its own details and cart colour. (A library.json\n"
++                       "there is optional.) Without a template, entries use Clean mode at 4:3.\n");
++            fclose(r);
++        }
++    }
++    path_free(readme);
++
++    if (ok) {
++        char msg[160];
++        snprintf(msg, sizeof(msg), "Saved %s%s", folder, (library_template || settings_template) ? " (your template)" : "");
++        flash(msg);
++        sound_play_effect(SFX_SETTING);
++    } else {
++        flash("Couldn't write the Analogue 3D entry");
++        sound_play_effect(SFX_ERROR);
++    }
++}
++
 +static void activate (menu_t *menu) {
++    if (category == CAT_ROM_INFO) {
++        if (row == 13 && signature_ok) {
++            create_a3d_entry(menu);
++        }
++        return;
++    }
 +    if (category == CAT_HARDWARE && row == 4 && expandable) {
 +        char name[80];
 +        library_clean_title(path_last_get(menu->load.rom_path), name, sizeof(name));
@@ -9245,7 +10057,7 @@ index 0000000..97cafd4
 +    } else if (category == CAT_CUSTOMIZATION && row == 0) {
 +        menu->next_mode = MENU_MODE_LABEL_PICKER;
 +        sound_play_effect(SFX_ENTER);
-+    } else if (category == CAT_CUSTOMIZATION && row == 3) {
++    } else if (category == CAT_CUSTOMIZATION && row == 4) {
 +        if (!confirm_delete) {
 +            confirm_delete = true;
 +            sound_play_effect(SFX_SETTING);
@@ -9254,7 +10066,7 @@ index 0000000..97cafd4
 +            delete_game(menu);
 +        }
 +        return;
-+    } else if (category == CAT_CUSTOMIZATION && row == 2) {
++    } else if (category == CAT_CUSTOMIZATION && row == 3) {
 +        labels_override_clear(path_get(menu->load.rom_path));
 +        library_label_cache_clear();
 +        flash("Label reset to the game's own");
@@ -9302,7 +10114,7 @@ index 0000000..97cafd4
 +        row++;
 +        sound_play_effect(SFX_CURSOR);
 +    } else if (menu->actions.go_left && !menu->actions.go_fast) {
-+        if (category == CAT_ROM_INFO || (category == CAT_CHEATS && row == 1) || (category == CAT_CUSTOMIZATION && row != 1)
++        if (category == CAT_ROM_INFO || (category == CAT_CHEATS && row == 1) || (category == CAT_CUSTOMIZATION && row != 1 && row != 2)
 +            || (category == CAT_HARDWARE && row == 4)) {
 +            rows_focused = false;
 +            sound_play_effect(SFX_EXIT);
@@ -9361,7 +10173,7 @@ index 0000000..97cafd4
 +    }
 +
 +    rom_info_t *ri = &menu->load.rom_info;
-+    lib_row_t rows[12];
++    lib_row_t rows[16];
 +    memset(rows, 0, sizeof(rows));
 +    int n = 0;
 +    char b[12][48];
@@ -9384,6 +10196,16 @@ index 0000000..97cafd4
 +            break;
 +        case CAT_CUSTOMIZATION:
 +            rows[n++] = (lib_row_t) { .section = "LIBRARY", .label = "Choose Label", .value = ">", .kind = LIB_ROW_ACTION };
++            {
++                static char colour_text[40];
++                int chosen = labels_colour_override_get(path_get(menu->load.rom_path));
++                if (chosen >= 0 && chosen < CART_COLOUR_COUNT) {
++                    snprintf(colour_text, sizeof(colour_text), "%s", cart_colour_name(chosen));
++                } else {
++                    snprintf(colour_text, sizeof(colour_text), "Original (%s)", cart_colour_name(cart_colour_default(ri->game_code)));
++                }
++                rows[n++] = (lib_row_t) { .label = "Cart Colour", .value = colour_text, .kind = LIB_ROW_CHOICE };
++            }
 +            rows[n++] = (lib_row_t) { .label = "Favorite", .kind = LIB_ROW_TOGGLE, .on = favorite_slot(menu) >= 0 };
 +            rows[n++] = (lib_row_t) { .label = "Reset Label", .value = ">", .kind = LIB_ROW_ACTION };
 +            rows[n++] = (lib_row_t) { .section = "MANAGE", .label = confirm_delete ? "Press A again to delete this game" : "Delete Game",
@@ -9414,6 +10236,8 @@ index 0000000..97cafd4
 +            rows[n++] = (lib_row_t) { .label = "SDK Version", .value = b[5], .mono = true };
 +            rows[n++] = (lib_row_t) { .label = "Clock Rate", .value = b[6], .mono = true };
 +            rows[n++] = (lib_row_t) { .label = "Endianness", .value = endian, .mono = true };
++            rows[n++] = (lib_row_t) { .section = "ANALOGUE 3D", .label = "Signature", .value = signature_ok ? signature : "Unknown", .mono = true };
++            rows[n++] = (lib_row_t) { .label = "Create Analogue 3D Entry", .value = ">", .kind = LIB_ROW_ACTION, .disabled = !signature_ok };
 +            break;
 +        }
 +        default:
@@ -9430,6 +10254,10 @@ index 0000000..97cafd4
 +    if (!rows_focused) {
 +        const lib_button_t bt[] = { LIB_BTN_A, LIB_BTN_B };
 +        const char *t[] = { "Select", "Back" };
++        library_ui_footer(menu, 2, bt, t);
++    } else if (category == CAT_ROM_INFO && row == 13 && signature_ok) {
++        const lib_button_t bt[] = { LIB_BTN_A, LIB_BTN_B };
++        const char *t[] = { "Create", "Back" };
 +        library_ui_footer(menu, 2, bt, t);
 +    } else if (category == CAT_ROM_INFO) {
 +        const lib_button_t bt[] = { LIB_BTN_B };
@@ -9470,6 +10298,9 @@ index 0000000..97cafd4
 +    }
 +    // 64DD Game Pak: any expandable ('C') cartridge, plus anything the game list marks as 64DD-enhanced.
 +    expandable = dd_rom_is_expandable(menu->load.rom_info.game_code) || menu->load.rom_info.features.combo_rom_disk_game;
++    uint32_t sig = 0;
++    signature_ok = labels_db_rom_id(path_get(menu->load.rom_path), &sig);
++    snprintf(signature, sizeof(signature), "%08lX", (unsigned long)sig);
 +    char clean[96];
 +    library_clean_title(path_last_get(menu->load.rom_path), clean, sizeof(clean));
 +    snprintf(title, sizeof(title), "Configure [%s]", clean);
@@ -10391,7 +11222,7 @@ index 083bd9a..9f851f0 100644
  }
  
 diff --git a/src/menu/views/load_rom.c b/src/menu/views/load_rom.c
-index 7635f48..e763c1d 100644
+index 7635f48..d5c8f8e 100644
 --- a/src/menu/views/load_rom.c
 +++ b/src/menu/views/load_rom.c
 @@ -6,11 +6,14 @@
@@ -10454,7 +11285,7 @@ index 7635f48..e763c1d 100644
          }
          return;
      }
-@@ -604,12 +624,29 @@ static void process (menu_t *menu) {
+@@ -604,12 +624,30 @@ static void process (menu_t *menu) {
  }
  
  static void draw (menu_t *menu, surface_t *d) {
@@ -10463,6 +11294,7 @@ index 7635f48..e763c1d 100644
 +        rdpq_attach(d, NULL);
 +        char title[96];
 +        library_clean_title(path_last_get(menu->load.rom_path), title, sizeof(title));
++        library_ui_set_loader_colour(library_cart_colour_for_code(path_get(menu->load.rom_path), menu->load.rom_info.game_code));
 +        library_ui_cart_loader(0.0f, title, library_label_peek(path_get(menu->load.rom_path)), false);
 +        ui_components_messagebox_draw(
 +            "This game needs an Expansion Pak,\n"
@@ -10485,7 +11317,7 @@ index 7635f48..e763c1d 100644
      } else {
  #endif
          ui_components_layout_draw();
-@@ -668,7 +705,7 @@ static void draw (menu_t *menu, surface_t *d) {
+@@ -668,7 +706,7 @@ static void draw (menu_t *menu, surface_t *d) {
              STL_DEFAULT,
              ALIGN_CENTER, VALIGN_TOP,
              "Start: Adv. Info\n"
@@ -10494,7 +11326,7 @@ index 7635f48..e763c1d 100644
          );
  
          ui_components_actions_bar_text_draw(
-@@ -749,15 +786,27 @@ static void draw (menu_t *menu, surface_t *d) {
+@@ -749,15 +787,30 @@ static void draw (menu_t *menu, surface_t *d) {
      rdpq_detach_show();
  }
  
@@ -10509,6 +11341,9 @@ index 7635f48..e763c1d 100644
 +        library_clean_title(path_last_get(menu->load.rom_path), loading_title, sizeof(loading_title));
 +        // Only use a label that is already in memory: nothing else is read from the SD card while the ROM loads.
 +        loading_label = library_label_peek(path_get(menu->load.rom_path));
++        library_ui_set_loader_colour(library_cart_colour_for_code(path_get(menu->load.rom_path), menu->load.rom_info.game_code));
++    } else {
++        library_ui_set_loader_colour(0);
 +    }
 +}
 +
@@ -10525,7 +11360,7 @@ index 7635f48..e763c1d 100644
  
          rdpq_detach_show();
      }
-@@ -780,6 +829,7 @@ static void draw_creating_save (float progress) {
+@@ -780,6 +833,7 @@ static void draw_creating_save (float progress) {
  static void load (menu_t *menu) {
      debugf("Load ROM: load function called\n");
      cart_load_err_t err;
@@ -10533,7 +11368,7 @@ index 7635f48..e763c1d 100644
  #ifdef FEATURE_AUTOLOAD_ROM_ENABLED
      if (!menu->settings.loading_progress_bar_enabled) {
          err = cart_load_n64_rom_and_save(menu, NULL, NULL);
-@@ -892,6 +942,8 @@ void view_load_rom_init (menu_t *menu) {
+@@ -892,6 +946,8 @@ void view_load_rom_init (menu_t *menu) {
          menu->load.load_history_id = -1;
          menu->load.load_favorite_id = -1;
          // FIXME: use bookkeeping_favorite_remove() here instead of just showing an error and leaving the broken favorite / history item in place
@@ -10542,7 +11377,7 @@ index 7635f48..e763c1d 100644
          menu_show_error(menu, convert_error_message(err));
          return;
      }
-@@ -914,6 +966,23 @@ void view_load_rom_init (menu_t *menu) {
+@@ -914,6 +970,23 @@ void view_load_rom_init (menu_t *menu) {
      }
  #endif
  

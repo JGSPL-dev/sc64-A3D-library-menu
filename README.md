@@ -16,6 +16,7 @@ It is built on [N64FlashcartMenu](https://github.com/Polprzewodnikowy/N64Flashca
 
 | Folder | Contents |
 |---|---|
+| `CHANGES-1.5.md` | What's new in 1.5 |
 | `CHANGES-1.4.md` | What's new in 1.4 |
 | `install/` | `sc64menu.n64` and `menu/library.ini`: everything that goes on the SD card |
 | `source/` | Complete source (patch and git bundle) and how to use it |
@@ -25,7 +26,7 @@ It is built on [N64FlashcartMenu](https://github.com/Polprzewodnikowy/N64Flashca
 
 ## Screenshots
 
-The `examples/` folder has screenshots taken on an Analogue 3D (with version 1.3, before the 1.4 label window and 64DD changes), rescaled to 16:9 as they appear on the TV:
+The `examples/` folder has screenshots taken on an Analogue 3D (with version 1.3, before the 1.4 label window, 64DD changes and 1.5 cart colours), rescaled to 16:9 as they appear on the TV:
 
 | File | Screen |
 |---|---|
@@ -48,6 +49,7 @@ The `examples/` folder has screenshots taken on an Analogue 3D (with version 1.3
 3. [Set up your SD card](#set-up-your-sd-card)
 4. [Add cartridge labels](#add-cartridge-labels)
 5. [Analogue 3D display settings](#analogue-3d-display-settings)
+   - [Give ROM hacks their own Analogue 3D settings](#give-rom-hacks-their-own-analogue-3d-settings)
 6. [Controls](#controls)
 7. [Screens](#screens)
 8. [Settings files](#settings-files)
@@ -132,7 +134,8 @@ The menu shows cartridge label art from **`labels.db`**, the label database the 
 How labels are matched:
 
 - Each ROM is matched by a checksum of its first 8 KB, the same method the Analogue 3D uses. `.z64`, `.v64` and `.n64` byte orders all work.
-- Labels fill the cart's label window, which has an arched top and a thin medium grey outline.
+- Labels are scaled once, when they load, to their true shape (56×86 on screen), and fill the cart's label window exactly. The window has an arched top and a thin outline.
+- **Cart colours:** each game's cart starts in its original release colour (for example gold Majora's Mask, yellow Donkey Kong 64, blue Tony Hawk's Pro Skater). Colours follow the region: most coloured carts were North American; PAL and Australian copies are coloured only where those releases were. Japanese carts are grey. Change a game's colour with C▶ → Customization → **Cart Colour**.
 - A game with no match shows a **blank grey cartridge**.
 - **Choose your own label:** on a game, press **C▶** and go to Customization → Choose Label. Your choices are saved in `/menu/label_overrides.ini`.
 
@@ -165,7 +168,20 @@ The menu draws a 640×480 picture designed to fill a 16:9 screen. Set these on t
 
 **These settings don't affect your games.** Each game in the Analogue 3D's library keeps its own display profile, so a game can still run in 4:3 with any filter you like while the menu fills the screen.
 
-> **Exception: 64DD games and ROM hacks.** Games the Analogue 3D doesn't recognise from its own library, such as 64DD disk images, ROM hacks and homebrew, have no profile of their own. They **inherit the SummerCart64's settings** (Stretch, Fill and Clean). After one of these boots, open the Analogue 3D's menu and change the display settings as you need them, for example back to 4:3 or with your preferred filter.
+> **Exception: 64DD games and ROM hacks.** Games the Analogue 3D doesn't recognise from its own library, such as 64DD disk images, ROM hacks and homebrew, have no profile of their own. They **inherit the SummerCart64's settings** (Stretch, Fill and Clean). For ROM hacks and homebrew, the menu can fix this: see [Give ROM hacks their own Analogue 3D settings](#give-rom-hacks-their-own-analogue-3d-settings).
+
+### Give ROM hacks their own Analogue 3D settings
+
+The Analogue 3D keeps each game's settings in a folder on its SD card, `/Library/N64/Games/<title> <signature>/`. The signature is a checksum of the ROM's first 8 KB. It makes these folders itself for games it recognises, but not for ROM hacks, so they fall back to the SummerCart64's settings. The menu can make the folder for you:
+
+1. On the game, press **C▶ → ROM Info**. At the bottom, **Signature** shows its code.
+2. Scroll to the very bottom of ROM Info and choose **Create Analogue 3D Entry** (A). The menu writes `/a3d/Library/N64/Games/<title> <signature>/` on the **SummerCart64's** card, with `library.json` (title, players, accessories, region, cart colour) and `settings.json` (display and hardware settings).
+3. Make entries for as many games as you like, then copy the **`Library`** folder from `/a3d` on the SummerCart64's card to the root of the **Analogue 3D's** card, merging it with the `Library` folder already there.
+4. Boot the game from the menu as normal. It now uses its own settings, which you can change on the Analogue 3D; they're remembered, and the game appears in the Analogue 3D's Library.
+
+**To use your own settings**, copy `settings.json` from any game folder on the Analogue 3D (one set up the way you like) into `/a3d/template/` on the SummerCart64's card. Every new entry then uses it, with the game's own cart colour. Without a template, each game first boots in Clean mode at 4:3 (Image fit: Original); change it to your preferred settings once on the Analogue 3D and it remembers them.
+
+An entry only needs creating once per game. A new version of a hack has a new signature, so it needs its own entry: Smash Remix 2.0 and 3.0 each need one, for example. **Labels for hacks:** the entry doesn't include label art. To show a label for a hack in 3DOS, make one yourself and add it to your Analogue 3D's own `labels.db` (`/Library/N64/Images/labels.db`) under the game's signature, for example with the community [labels.db editor](https://enoznal.com/3d/labels.html). Copy the updated `labels.db` to the SummerCart64 card as `/menu/labels.db` too, and the hack shows the same label in this menu.
 
 In 4:3 mode the menu still works, but everything looks narrow.
 
@@ -218,8 +234,8 @@ History shows the 8 games played most recently. Favorites shows up to 8 games.
 Configure has four categories:
 - **Hardware:** CIC, save type, TV type, Clear RAM, and **Use as 64DD Game Pak** on expandable cartridges
 - **Cheats:** Use Cheats, the Datel code editor, and Show Cheat Files (applies to all games)
-- **Customization:** Choose Label, Favorite, Reset Label, and **Delete Game** (press A twice to confirm; removes the game file and its History/Favorites entries; saves are kept)
-- **ROM Info:** details from the ROM header
+- **Customization:** Choose Label, **Cart Colour** (Original or any colour), Favorite, Reset Label, and **Delete Game** (press A twice to confirm; removes the game file and its History/Favorites entries; saves are kept)
+- **ROM Info:** details from the ROM header, the Analogue 3D **Signature**, and **Create Analogue 3D Entry**
 
 Settings are saved per game and used every time you press A to play.
 
@@ -265,7 +281,8 @@ All are plain text files on the SD card and safe to edit on a PC.
 | File | Purpose |
 |---|---|
 | `/menu/library.ini` | Folder order and hidden folders (below) |
-| `/menu/label_overrides.ini` | Labels you picked with Choose Label |
+| `/menu/label_overrides.ini` | Labels you picked with Choose Label, and cart colours you chose |
+| `/a3d/` | Analogue 3D entries made with Create Analogue 3D Entry, to copy to the Analogue 3D's card; `/a3d/template/settings.json` is your optional template |
 | `/menu/labels.db` | Label art, copied from your Analogue 3D |
 | `/menu/config.ini` and the per-game `.ini` files | Stock N64FlashcartMenu settings, unchanged |
 
@@ -308,7 +325,9 @@ hide = cpak_saves
 - The N64 outputs at most 640 pixels across. The Analogue 3D stretches this to 16:9, so each pixel is about a third wider than tall. Text uses fonts narrowed to compensate, which makes them slightly soft. Labels and carts are pre-shaped.
 - All menu screens use the 3DOS style, except the image viewer, music player and emulator loading screens, which still use the stock layout.
 - Text uses basic Latin characters only. Accented and Japanese characters show as spaces.
-- Labels are drawn at about 58×86 pixels, so fine label detail is limited by the N64's resolution.
+- Labels are drawn at 56×86 pixels, so fine label detail is limited by the N64's resolution.
+- 64DD disks show a blank disk in the Library: there's no label art for disks yet.
+- Cart colours have no Japanese data, so Japanese carts are grey. Australian carts that share Europe's game code use the European colour.
 - Only what is in `labels.db` can be shown. There is no automatic download, and labels can't be searched by name.
 
 ---
@@ -326,7 +345,7 @@ git apply --binary /path/to/source/sc64-library-source.patch
 
 # Toolchain: libdragon preview (see N64FlashcartMenu's README, or use its devcontainer/Docker image)
 export N64_INST=/path/to/libdragon-toolchain
-make MENU_VERSION='"0.3.5-library-1.4"'
+make MENU_VERSION='"0.3.5-library-1.5"'
 # Output: output/sc64menu.n64
 ```
 
